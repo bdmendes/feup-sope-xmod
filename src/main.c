@@ -6,6 +6,7 @@ static const char *PROGRAM_NAME = "xmod";
 int main(int argc, char **argv) {
   for (int i = 0; i < argc; ++i) {
     printf("Argument %d: %s\n", i, argv[i]);
+    pp
   }
   return 0;
 }
