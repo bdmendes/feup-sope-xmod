@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: src
-      run: ./src
+    - name: cd src
+      run: cd src
     - name: make
       run: make
