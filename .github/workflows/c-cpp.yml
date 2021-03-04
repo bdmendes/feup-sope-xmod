@@ -9,10 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./src
 
     steps:
     - uses: actions/checkout@v2
     - name: make
-      run: make
+      working-directory: ./src
+      run: |
+        make
