@@ -9,8 +9,8 @@ xmod: $(OBJECTS)
 
 #Object files and their needed sources/headers
 #Compiler command is deduced
-main.o: main.c
-parsers.o: parsers.c
+main.o: main.c xmod.h
+parsers.o: parsers.c xmod.h
 
 #Clean command
 clean:
