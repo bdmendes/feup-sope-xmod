@@ -1,7 +1,17 @@
-all: xmod
+CC = gcc 
+CFLAGS = -Wall
+PROG_NAME = xmod
 
-xmod: main.c
-	cc -Wall -o xmod main.c
+OBJECTS = main.o parsers.o
 
+xmod: $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(PROG_NAME) $(OBJECTS)
+
+#Object files and their needed sources/headers
+#Compiler command is deduced
+main.o: main.c
+parsers.o: parsers.c
+
+#Clean command
 clean:
-	rm -f xmod
+	rm -f $(PROG_NAME) $(OBJECTS)
