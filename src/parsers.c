@@ -4,21 +4,22 @@
 int read_mode(const char **argv, XmodCommand *xmodCommand){
 
     int mode_index = 2;
-    
-    if(strcmp(argv[1], PROGRAM_NAME)) return 1;
 
-    if(!strncmp(argv[2], "-", 1)){
+    if(strncmp(argv[2], "-", 1) != 0){
         mode_index++;
         parse_options(argv[2], xmodCommand);
     } 
 
-    if(argv[mode_index][0]>57) parse_symbolic_mode(argv[mode_index], xmodCommand);
+    // work with hidden user/group
+    if(argv[mode_index][0]>'0') parse_symbolic_mode(argv[mode_index], xmodCommand);
     //else parse_octal_mode
 
     return 0;
 }
 
 int parse_symbolic_mode(const char *mode, XmodCommand *xmodCommand){
+
+  // convert to switch
 
     if(mode[0] == 'u') xmodCommand->mode.symbolic_mode.user_type = USER;
     else if(mode[0] =='g') xmodCommand->mode.symbolic_mode.user_type = GROUP;
