@@ -1,4 +1,8 @@
+#ifndef XMOD_H
+#define XMOD_H
+
 #include <stdbool.h>
+#include <fcntl.h>
 
 static const char *PROGRAM_NAME = "xmod";
 
@@ -38,3 +42,10 @@ typedef struct XmodCommand {
     struct XmodOptions options;
     char *file_dir;
 } XmodCommand;
+
+typedef struct FileInfo {
+    const char *path;
+    mode_t old_mode;
+} FileInfo;
+
+#endif

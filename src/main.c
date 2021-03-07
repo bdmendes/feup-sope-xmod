@@ -1,31 +1,45 @@
-#include <fcntl.h>
+
 #include <fts.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-static const char *PROGRAM_NAME = "xmod";
-// Continue with options, perhaps in a header file
+#include "xmod.h"
 
-int retrieve_file_mode(int dir_fd, const char *path_name, mode_t *file_mode,
-                       int flag);
+int retrieve_file_mode(const char *path_name, mode_t *file_mode);
+void assemble_file_info(FileInfo *file_info, const mode_t mode,
+                        const char *path);
+void destroy_file_info(FileInfo *file_info);
 
 int main(int argc, char **argv) {
-    int dirfd = open(argv[1], O_RDONLY);
+    char *file_path = argv[1];
     mode_t mode = 0;
-    retrieve_file_mode(dirfd, argv[2], &mode, 0);
-    printf("Old mode: %o\n", mode);
+    retrieve_file_mode(file_path, &mode);
+    FileInfo *file_info = (FileInfo *)malloc(sizeof(FileInfo));
+    assemble_file_info(file_info, mode, file_path);
+    printf("Old mode: %o\n", file_info->old_mode);
+    destroy_file_info(file_info);
     return 0;
 }
 
-int retrieve_file_mode(int dir_fd, const char *path_name, mode_t *file_mode,
-                       int flag) {
+int retrieve_file_mode(const char *path_name, mode_t *file_mode) {
     struct stat sb;
-    if (fstatat(dir_fd, path_name, &sb, flag) < 0) {
-        perror("fstat");
-        return 0;
+    if (stat(path_name, &sb) < 0) {
+        perror("stat");
+        return 1;
     }
-    *file_mode = sb.st_mode;
+    *file_mode = sb.st_mode & 0x1FF;
     return 0;
+}
+
+void assemble_file_info(FileInfo *file_info, const mode_t mode,
+                        const char *path) {
+    file_info->path = path;
+    file_info->old_mode = mode;
+}
+
+void destroy_file_info(FileInfo *file_info) {
+    free(file_info);
 }
