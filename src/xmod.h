@@ -1,16 +1,35 @@
+#ifndef XMOD_H
+#define XMOD_H
+
 #include <stdbool.h>
+#include <sys/types.h>
 
-enum XMOD_MODE_TYPE { SYMBOLIC_MODE, OCTAL_MODE } XMOD_MODE_TYPE;
+//static const char *PROGRAM_NAME = "xmod";
 
-union XmodMode {
-    char *symbolic_mode;
-    char *octal_mode;
-};
+enum XMOD_MODE_TYPE { SYMBOLIC_MODE, OCTAL_MODE };
+
+enum XMOD_USER_TYPE { USER, GROUP, OTHER, ALL };
 
 struct XmodOptions {
     bool changes;
     bool verbose;
     bool recursive;
+};
+
+struct XmodPermissions{
+    bool read;
+    bool write;
+    bool execute;
+};
+
+struct XmodSymbolicMode{
+    enum XMOD_USER_TYPE user_type;
+    struct XmodPermissions permissions;
+};
+
+union XmodMode {
+    struct XmodSymbolicMode symbolic_mode;
+    mode_t octal_mode;
 };
 
 typedef struct XmodCommand {
@@ -20,3 +39,5 @@ typedef struct XmodCommand {
     struct XmodOptions options;
     char *file_dir;
 } XmodCommand;
+
+#endif
