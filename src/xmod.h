@@ -1,6 +1,8 @@
 #ifndef XMOD_H
 #define XMOD_H
 
+#include <fcntl.h>
+
 #include <stdbool.h>
 #include <sys/types.h>
 
@@ -38,5 +40,10 @@ typedef struct XmodCommand {
     struct XmodOptions options;
     char *file_dir;
 } XmodCommand;
+
+typedef struct FileInfo {
+    const char *path;
+    mode_t old_mode;
+} FileInfo;
 
 #endif
