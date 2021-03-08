@@ -6,13 +6,25 @@
 
 static int parse_symbolic_mode(const char *mode, XmodCommand *xmodCommand){
 
-  // convert to switch
-
-    if(mode[0] == 'u') xmodCommand->mode.symbolic_mode.user_type = USER;
-    else if(mode[0] =='g') xmodCommand->mode.symbolic_mode.user_type = GROUP;
-    else if(mode[0] == 'o') xmodCommand->mode.symbolic_mode.user_type = OTHER;
-    else if(mode[0] =='a') xmodCommand->mode.symbolic_mode.user_type = ALL;
-    else return 1; //invalid command
+    switch(mode[0]){
+        case 'u':
+            xmodCommand->mode.symbolic_mode.user_type = USER;
+            break;
+        case 'g':
+            xmodCommand->mode.symbolic_mode.user_type = GROUP;
+            break;
+        case 'o':
+            xmodCommand->mode.symbolic_mode.user_type = OTHER;
+            break;
+        case 'a':
+        case '+':
+        case '-':
+        case '=':
+            xmodCommand->mode.symbolic_mode.user_type = ALL;
+            break;
+        default:
+            return 1; //invalid command
+    }
 
     /*
     if(mode[1] == '-') xmodCommand->mode.symbolic_mode.permission_operator_type = SUBTRACT;
@@ -27,6 +39,9 @@ static int parse_symbolic_mode(const char *mode, XmodCommand *xmodCommand){
     
     return 0;
 }
+
+/*static int transform_symbolic_to_octal(XmodCommand *xmodCommand){
+}*/
 
 static int parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand){
     char* buf;
@@ -50,7 +65,6 @@ int parse(char **argv, XmodCommand *xmodCommand){
         parse_options(argv[2], xmodCommand);
     }
 
-    // work with hidden user/group
     if(isdigit(argv[mode_index][0])){ // create util to check entire string
         parse_octal_mode(argv[mode_index], xmodCommand);
     } else {
