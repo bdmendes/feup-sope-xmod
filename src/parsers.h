@@ -4,6 +4,6 @@
 #include <string.h>
 #include "xmod.h"
 
-int parse(const char **argv, XmodCommand *xmodCommand);
+int parse(char **argv, XmodCommand *xmodCommand);
 
 #endif

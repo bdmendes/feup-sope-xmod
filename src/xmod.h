@@ -33,7 +33,6 @@ union XmodMode {
 };
 
 typedef struct XmodCommand {
-    char *str;
     enum XMOD_MODE_TYPE mode_type;
     union XmodMode mode;
     struct XmodOptions options;
