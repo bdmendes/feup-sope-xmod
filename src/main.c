@@ -8,10 +8,10 @@
 
 #include "xmod.h"
 
-int retrieve_file_mode(const char *path_name, mode_t *file_mode);
-void assemble_file_info(FileInfo *file_info, const mode_t mode,
-                        const char *path);
-void destroy_file_info(FileInfo *file_info);
+static int retrieve_file_mode(const char *path_name, mode_t *file_mode);
+static void assemble_file_info(FileInfo *file_info, const mode_t mode,
+                               const char *path);
+static void destroy_file_info(FileInfo *file_info);
 
 int main(int argc, char **argv) {
     char *file_path = argv[1];
