@@ -1,11 +1,14 @@
 #include <stdio.h>
+#include <sys/stat.h>
 
-static const char *PROGRAM_NAME = "xmod";
-// Continue with options, perhaps in a header file
+#include "parsers.h"
 
 int main(int argc, char **argv) {
-    for (int i = 0; i < argc; ++i) {
-        printf("Argument %d: %s\n", i, argv[i]);
+    XmodCommand cmd;
+    parse(argv, &cmd);
+    printf("mode: %o\n", cmd.mode.octal_mode);
+    if (chmod(cmd.file_dir, cmd.mode.octal_mode) == -1){
+        perror("chmod call failed");
+        return -1;
     }
-    return 0;
 }
