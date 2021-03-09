@@ -12,6 +12,16 @@ enum XMOD_USER_TYPE { USER, GROUP, OTHER, ALL} XMOD_USER_TYPE;
 
 enum XMOD_PERMISSION_OPERATOR_TYPE { SUBTRACT, ADD, ASSIGN} XMOD_PERMISSION_OPERATOR_TYPE;
 
+enum FILE_TYPE { 
+    REGULAR,
+    DIRECTORY,
+    CHAR_SPECIAL,
+    BLOCK_SPECIAL,
+    FIFO,
+    SYMBOLIC_LINK,
+    SOCKET
+} FILE_TYPE;
+
 struct XmodOptions {
     bool changes;
     bool verbose;
@@ -46,6 +56,7 @@ typedef struct XmodCommand {
 typedef struct FileInfo {
     const char *path;
     mode_t old_mode;
+    enum FILE_TYPE type;
 } FileInfo;
 
 #endif
