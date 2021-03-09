@@ -1,37 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "xmod.h"
+#include "log.h"
 
 //static const char *PROGRAM_NAME = "xmod";
 // Continue with options, perhaps in a header file
 
-typedef struct{ //opinião da modelação
-  char* cmd;
-  int exit_code;
-  char* signal;   //mudar isto para o "tipo" de sinal
-  int process_target;  
-  char* direct;
-  int old_perms;
-  int new_perms;
-} info;
+int main(int argc, char **argv, char *envp[]) {
+  FILE* my_file = log_init();
+  union info nj;
+  nj.exit_code = 1;
+  nj.signal_received = "helo";
+  nj.sent.signal_sent = "hello";
+  nj.sent.pid_sent = 4;
+ nj.arg.argc_info = argc;
+ nj.arg.argv_info = argv;
+nj.perm.name_file = "~";
+nj.perm.old_perms = 0666;
+nj.perm.new_perms = 0666;
 
-int log_file(char* action, info inf){   //vamos querer tipo evento ou string para action ou definido com macro
-  char* dir = getenv("LOG_FILENAME");   //vamos querer só nome na variável ou o caminho
-  if(dir == NULL){
-    printf("ENVP not found\n");
-    return 1;
-    }
-  printf("%s", dir);
-  return 0;
-}
+  
+  log_file(my_file, FILE_MODF, nj);
+ nj.arg.argc_info = argc;
+ nj.arg.argv_info = argv;
+ log_file(my_file, PROC_CREAT, nj);
 
-int main(int argc, char **argv) {
-  for (int i = 0; i < argc; ++i) {
-    printf("Argument %d: %s\n", i, argv[i]);
-  }
-
-  info hello;
-  log_file("PROC_CREAT", hello);
-
+  log_close(my_file);
   return 0;
 }

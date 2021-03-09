@@ -1,7 +1,14 @@
-all: xmod
+CC = cc 
+CFLAGS = -Wall -Werror
+PROG_NAME = xmod
 
-xmod: main.c
-	cc -Wall -o xmod main.c
+OBJECTS = main.o log.o
 
+xmod: $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(PROG_NAME) $(OBJECTS)
+
+%.o: %.c %.h
+
+.PHONY: clean
 clean:
-	rm -f xmod
+	rm -f $(PROG_NAME) $(OBJECTS)
