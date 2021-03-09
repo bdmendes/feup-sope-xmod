@@ -1,6 +1,6 @@
 {
     "files.associations": {
-        "string.h": "c",
-        "xmod.h": "c"
+        "xmod.h": "c",
+        "retrievers.h": "c"
     }
 }
