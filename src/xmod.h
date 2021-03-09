@@ -4,13 +4,14 @@
 #include <stdbool.h>
 #include <fcntl.h>
 
-static const char *PROGRAM_NAME = "xmod";
+#include <stdbool.h>
+#include <sys/types.h>
 
-enum XMOD_MODE_TYPE { SYMBOLIC_MODE, OCTAL_MODE } XMOD_MODE_TYPE;
+//static const char *PROGRAM_NAME = "xmod";
 
-enum XMOD_USER_TYPE { USER, GROUP, OTHER, ALL} XMOD_USER_TYPE;
+enum XMOD_MODE_TYPE { SYMBOLIC_MODE, OCTAL_MODE };
 
-enum XMOD_PERMISSION_OPERATOR_TYPE { SUBTRACT, ADD, ASSIGN} XMOD_PERMISSION_OPERATOR_TYPE;
+enum XMOD_USER_TYPE { USER, GROUP, OTHER, ALL };
 
 enum FILE_TYPE { 
     REGULAR,
@@ -20,7 +21,7 @@ enum FILE_TYPE {
     FIFO,
     SYMBOLIC_LINK,
     SOCKET
-} FILE_TYPE;
+};
 
 struct XmodOptions {
     bool changes;
@@ -36,17 +37,15 @@ struct XmodPermissions{
 
 struct XmodSymbolicMode{
     enum XMOD_USER_TYPE user_type;
-    enum XMOD_PERMISSION_OPERATOR_TYPE permission_operator_type;
     struct XmodPermissions permissions;
 };
 
 union XmodMode {
     struct XmodSymbolicMode symbolic_mode;
-    char *octal_mode; //might be a struct as well
+    mode_t octal_mode;
 };
 
 typedef struct XmodCommand {
-    char *str;
     enum XMOD_MODE_TYPE mode_type;
     union XmodMode mode;
     struct XmodOptions options;
@@ -55,8 +54,8 @@ typedef struct XmodCommand {
 
 typedef struct FileInfo {
     const char *path;
-    mode_t old_mode;
-    enum FILE_TYPE type;
+    mode_t octal_mode;
+    enum FILE_TYPE file_type;
 } FileInfo;
 
 #endif

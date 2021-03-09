@@ -1,13 +1,9 @@
-#ifndef MODE_H
-#define MODE_H
+#ifndef PARSERS_H
+#define PARSERS_H
 
 #include <string.h>
 #include "xmod.h"
 
-int read_mode(const char **argv, XmodCommand *xmodCommand);
-
-int parse_symbolic_mode(const char *argv, XmodCommand *xmodCommand);
-
-void parse_options(const char *options, XmodCommand *xmodCommand);
+int parse(char **argv, XmodCommand *xmodCommand);
 
 #endif
