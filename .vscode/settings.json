@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "xmod.h": "c",
+        "retrievers.h": "c"
+    }
+}

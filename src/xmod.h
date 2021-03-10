@@ -2,6 +2,9 @@
 #define XMOD_H
 
 #include <stdbool.h>
+#include <fcntl.h>
+
+#include <stdbool.h>
 #include <sys/types.h>
 
 //static const char *PROGRAM_NAME = "xmod";
@@ -9,6 +12,16 @@
 enum XMOD_MODE_TYPE { SYMBOLIC_MODE, OCTAL_MODE };
 
 enum XMOD_USER_TYPE { USER, GROUP, OTHER, ALL };
+
+enum FILE_TYPE { 
+    REGULAR,
+    DIRECTORY,
+    CHAR_SPECIAL,
+    BLOCK_SPECIAL,
+    FIFO,
+    SYMBOLIC_LINK,
+    SOCKET
+};
 
 struct XmodOptions {
     bool changes;
@@ -39,6 +52,12 @@ typedef struct XmodCommand {
     char *file_dir;
 } XmodCommand;
 
+typedef struct FileInfo {
+    const char *path;
+    mode_t octal_mode;
+    enum FILE_TYPE file_type;
+} FileInfo;
+
 union info{
     struct args{
         int argc_info;
@@ -58,4 +77,5 @@ union info{
 };
 
 enum XMOD_EVENT { PROC_CREAT, PROC_EXIT, SIGNAL_RECV, SIGNAL_SENT, FILE_MODF };
+
 #endif
