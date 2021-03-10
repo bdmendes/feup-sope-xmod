@@ -59,17 +59,17 @@ typedef struct FileInfo {
 } FileInfo;
 
 union info{
-    struct args{
+    struct {
         int argc_info;
         char **argv_info;
     } arg;
     int exit_code;
     char* signal_received;
-    struct sents{
+    struct {
         char* signal_sent;
         int pid_sent;
     } sent;
-    struct perms{
+    struct {
         char* name_file;
         int old_perms;
         int new_perms;
