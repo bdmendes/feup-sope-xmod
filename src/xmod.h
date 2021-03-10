@@ -8,9 +8,7 @@
 
 //static const char *PROGRAM_NAME = "xmod";
 
-enum XMOD_MODE_TYPE { SYMBOLIC_MODE, OCTAL_MODE };
-
-enum XMOD_USER_TYPE { USER, GROUP, OTHER, ALL };
+//enum XMOD_MODE_TYPE { SYMBOLIC_MODE, OCTAL_MODE };
 
 enum FILE_TYPE { 
     REGULAR,
@@ -28,25 +26,22 @@ struct XmodOptions {
     bool recursive;
 };
 
-struct XmodPermissions{
+typedef struct XmodPermissions{
     bool read;
     bool write;
     bool execute;
-};
+    bool all;
+}XmodPermissions;
 
-struct XmodSymbolicMode{
-    enum XMOD_USER_TYPE user_type;
-    struct XmodPermissions permissions;
-};
-
-union XmodMode {
-    struct XmodSymbolicMode symbolic_mode;
-    mode_t octal_mode;
-};
+typedef struct OctalNumber{
+    mode_t ls;
+    mode_t middle;
+    mode_t ms;
+}OctalNumber;
 
 typedef struct XmodCommand {
-    enum XMOD_MODE_TYPE mode_type;
-    union XmodMode mode;
+    //enum XMOD_MODE_TYPE mode_type;
+    mode_t octal_mode;
     struct XmodOptions options;
     char *file_dir;
 } XmodCommand;
