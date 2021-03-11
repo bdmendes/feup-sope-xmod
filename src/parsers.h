@@ -7,4 +7,6 @@
 
 int parse(char **argv, XmodCommand *xmodCommand);
 
+int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, OctalNumber *old_digits, OctalNumber *new_digits);
+
 #endif

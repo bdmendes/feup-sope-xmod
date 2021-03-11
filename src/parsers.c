@@ -29,7 +29,7 @@ static OctalNumber get_digits(mode_t *mode){
     return mode_digits;
 }
 
-static int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, OctalNumber *old_digits, OctalNumber *new_digits){
+int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, OctalNumber *old_digits, OctalNumber *new_digits){
 
     int operator_index = (symbolic_mode[1] == '+' || symbolic_mode[1] == '-' || symbolic_mode[1] == '=') ? 1 : 0;
 
@@ -55,6 +55,9 @@ static int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, Octa
             new_digits->ls = get_octal_digit(permissions);
             break;
     }
+    printf("%o", new_digits->ls);
+    printf("%o", new_digits->middle);
+    printf("%o\n", new_digits->ms);
     switch(symbolic_mode[operator_index]){
         case '+':
             calculate_octal_sum(&old_digits->ls, &new_digits->ls);
