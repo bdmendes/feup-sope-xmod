@@ -6,7 +6,6 @@
 
 #include "parsers.h"
 #include "retrievers.h"
-#include "transverse.h"
 #include "utils.h"
 
 int transverse(XmodCommand *cmd) {
