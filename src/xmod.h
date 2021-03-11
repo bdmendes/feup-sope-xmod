@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <fcntl.h>
+#include <limits.h>
 
 #include <stdbool.h>
 #include <sys/types.h>
@@ -49,7 +50,7 @@ typedef struct XmodCommand {
     enum XMOD_MODE_TYPE mode_type;
     union XmodMode mode;
     struct XmodOptions options;
-    char *file_dir;
+    char file_dir[PATH_MAX];
 } XmodCommand;
 
 typedef struct FileInfo {
