@@ -32,9 +32,9 @@ int main(int argc, char **argv) {
         struct dirent *dirent;
 
         while ((dirent = readdir(dp)) != NULL) {
-            if (dirent->d_type == DT_DIR) {
-                if (strcmp(dirent->d_name, ".") != 0 &&
-                    strcmp(dirent->d_name, "..") != 0) {
+            if (strcmp(dirent->d_name, ".") != 0 &&
+                strcmp(dirent->d_name, "..") != 0) {
+                if (dirent->d_type == DT_DIR) {
                     printf("Entering directory : %s\n", dirent->d_name);
 
                     pid_t i = fork();
@@ -54,7 +54,6 @@ int main(int argc, char **argv) {
                         wait(NULL);
                     }
                 }
-            } else {
                 printf("Changing file permissions: %s\n", dirent->d_name);
                 chmod(curr_path, cmd.mode.octal_mode);
             }
