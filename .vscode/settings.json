@@ -1,6 +1,12 @@
 {
+    "clang-format.style": "{BasedOnStyle: LLVM, IndentWidth: 4, AllowShortBlocksOnASingleLine: Never, AllowShortCaseLabelsOnASingleLine: false, AllowShortFunctionsOnASingleLine: None, IndentCaseLabels: true}",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.wordWrap": "bounded",
+    "editor.wordWrapColumn": 100,
     "files.associations": {
-        "xmod.h": "c",
-        "retrievers.h": "c"
-    }
+        "stat.h": "c",
+        "stdio.h": "c",
+        "utils.h": "c"
+    },
 }
