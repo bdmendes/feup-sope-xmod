@@ -87,7 +87,8 @@ static mode_t get_mode(OctalNumber *digits){
 
 static int parse_symbolic_mode(char *mode, XmodCommand *xmodCommand){
     mode_t old_mode;
-    retrieve_file_mode(xmodCommand->file_dir, &old_mode);
+    FileInfo file_info;
+    retrieve_file_info(&file_info, xmodCommand->file_dir);
 
     OctalNumber old_digits = get_digits(&old_mode);
     OctalNumber new_digits;
