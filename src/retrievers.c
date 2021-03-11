@@ -3,12 +3,21 @@
 #include "retrievers.h"
 #include "xmod.h"
 
-// These two should be together, ie. retrieve file info which calls both of them
+static void assemble_file_info(FileInfo *file_info, const mode_t mode,
+                               const char *path);
 
-void assemble_file_info(FileInfo *file_info, const mode_t mode,
-                        const char *path) {
+static int retrieve_file_mode(const char *path_name, mode_t *file_mode);
+
+void retrieve_file_info(FileInfo *file_info, char *file_path) {
+    mode_t mode = 0;
+    retrieve_file_mode(file_path, &mode);
+    assemble_file_info(file_info, mode, file_path);
+}
+
+static void assemble_file_info(FileInfo *file_info, const mode_t mode,
+                               const char *path) {
     file_info->path = path;
-    file_info->octal_mode = mode & 0x1FF; // why not 0777? Is this the same?
+    file_info->octal_mode = mode & 0777;
 
     if (S_ISREG(mode))
         file_info->file_type = REGULAR;
@@ -28,7 +37,7 @@ void assemble_file_info(FileInfo *file_info, const mode_t mode,
         file_info->file_type = -1;
 }
 
-int retrieve_file_mode(const char *path_name, mode_t *file_mode) {
+static int retrieve_file_mode(const char *path_name, mode_t *file_mode) {
     struct stat sb;
     if (stat(path_name, &sb) < 0) {
         perror("stat");
@@ -37,8 +46,3 @@ int retrieve_file_mode(const char *path_name, mode_t *file_mode) {
     *file_mode = sb.st_mode;
     return 0;
 }
-
-// Overkill, this struct will be temp info and will be allocated on the stack
-/*void destroy_file_info(FileInfo *file_info) {
-    free(file_info);
-}*/
