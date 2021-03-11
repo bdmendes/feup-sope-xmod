@@ -5,10 +5,29 @@
 #include <stdlib.h>
 #include "xmod.h"
 
+union EventLog{
+    struct {
+        int argc_info;
+        char **argv_info;
+    } arg;
+    int exit_code;
+    char* signal_received;
+    struct {
+        char* signal_sent;
+        int pid_sent;
+    } sent;
+    struct {
+        char* name_file;
+        mode_t old_perms;
+        mode_t new_perms;
+    } perm;
+};
 
-int log_file(FILE* file, enum XMOD_EVENT event, union info inf);
+enum XMOD_EVENT { PROC_CREAT, PROC_EXIT, SIGNAL_RECV, SIGNAL_SENT, FILE_MODF };
 
-FILE* log_init();
+int log_file(FILE* file, enum XMOD_EVENT event, const union EventLog *inf);
+
+FILE* setup_event_logging();
 
 int log_close(FILE* file);
 

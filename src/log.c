@@ -14,7 +14,7 @@
 // Continue with options, perhaps in a header file
 static clock_t time_init;
 
-FILE* log_init(){
+FILE* setup_event_logging(){
     time_init = clock();
     char* dir = getenv("LOG_FILENAME");
     if(dir == NULL){
@@ -29,7 +29,7 @@ FILE* log_init(){
     return val_open;
 }
 
-int log_file(FILE* file, enum XMOD_EVENT event, union info inf){   
+int log_file(FILE* file, enum XMOD_EVENT event, const union EventLog *inf){   
   //time  
   clock_t time = clock();
   double mili_secs = (double) (time - time_init) / CLOCKS_PER_SEC *1000.0;
@@ -42,22 +42,22 @@ int log_file(FILE* file, enum XMOD_EVENT event, union info inf){
   switch(event){
     case PROC_CREAT:
         fprintf(file, "PROC_CREAT ;");
-        for(int i= 0; i<inf.arg.argc_info; i++){
-            fprintf(file, " %s", inf.arg.argv_info[i]);
+        for(int i= 0; i<inf->arg.argc_info; i++){
+            fprintf(file, " %s", inf->arg.argv_info[i]);
         }
         fprintf(file, "\n");
         break;
     case PROC_EXIT:
-        fprintf(file, "PROC_EXIT ; %d\n", inf.exit_code);
+        fprintf(file, "PROC_EXIT ; %d\n", inf->exit_code);
         break;
     case SIGNAL_RECV:
-        fprintf(file, "SIGNAL_RECV ; %s\n", inf.signal_received); //strsignal(inf.signal_received));
+        fprintf(file, "SIGNAL_RECV ; %s\n", inf->signal_received);
         break;
     case SIGNAL_SENT:
-        fprintf(file, "SIGNAL_SENT ; %s : %d\n", inf.sent.signal_sent, inf.sent.pid_sent);
+        fprintf(file, "SIGNAL_SENT ; %s : %d\n", inf->sent.signal_sent, inf->sent.pid_sent);
         break;
     case FILE_MODF:
-        fprintf(file, "FILE_MODF ; %s : %o : %o\n", inf.perm.name_file, inf.perm.old_perms, inf.perm.new_perms);
+        fprintf(file, "FILE_MODF ; %s : %o : %o\n", inf->perm.name_file, inf->perm.old_perms, inf->perm.new_perms);
         break;
     default:
         break;

@@ -58,24 +58,4 @@ typedef struct FileInfo {
     enum FILE_TYPE file_type;
 } FileInfo;
 
-union info{
-    struct {
-        int argc_info;
-        char **argv_info;
-    } arg;
-    int exit_code;
-    char* signal_received;
-    struct {
-        char* signal_sent;
-        int pid_sent;
-    } sent;
-    struct {
-        char* name_file;
-        int old_perms;
-        int new_perms;
-    } perm;
-};
-
-enum XMOD_EVENT { PROC_CREAT, PROC_EXIT, SIGNAL_RECV, SIGNAL_SENT, FILE_MODF };
-
 #endif
