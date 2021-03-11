@@ -1,8 +1,6 @@
 #include "retrievers.h"
-
+#include <dirent.h>
 #include <stdio.h>
-
-#include "xmod.h"
 
 static void assemble_file_info(FileInfo *file_info, const mode_t mode,
                                const char *path);

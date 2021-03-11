@@ -1,7 +1,6 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include "parsers.h"
@@ -10,7 +9,6 @@
 
 int transverse(XmodCommand *cmd) {
     char *curr_path = cmd->file_dir;
-
     printf("Changing file permissions: %s\n", curr_path);
     FileInfo file_info;
     if (retrieve_file_info(&file_info, curr_path) != 0) {

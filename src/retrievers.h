@@ -3,8 +3,6 @@
 
 #include <sys/stat.h>
 
-#include "xmod.h"
-
 typedef unsigned char file_type;
 
 typedef struct FileInfo {
