@@ -20,7 +20,7 @@ int transverse(XmodCommand *cmd) {
     }
     chmod(curr_path, cmd->mode.octal_mode);
 
-    if (cmd->options.recursive && file_info.file_type == DIRECTORY) {
+    if (cmd->options.recursive && file_info.type == DT_DIR) {
         DIR *dp = opendir(cmd->file_dir);
         struct dirent *dirent;
 

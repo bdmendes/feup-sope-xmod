@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <dirent.h>
 
 #include <stdbool.h>
 #include <sys/types.h>
@@ -13,16 +14,6 @@
 enum XMOD_MODE_TYPE { SYMBOLIC_MODE, OCTAL_MODE };
 
 enum XMOD_USER_TYPE { USER, GROUP, OTHER, ALL };
-
-enum FILE_TYPE { 
-    REGULAR,
-    DIRECTORY,
-    CHAR_SPECIAL,
-    BLOCK_SPECIAL,
-    FIFO,
-    SYMBOLIC_LINK,
-    SOCKET
-};
 
 struct XmodOptions {
     bool changes;
