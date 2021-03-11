@@ -53,10 +53,4 @@ typedef struct XmodCommand {
     char file_dir[PATH_MAX];
 } XmodCommand;
 
-typedef struct FileInfo {
-    const char *path;
-    mode_t octal_mode;
-    enum FILE_TYPE file_type;
-} FileInfo;
-
 #endif
