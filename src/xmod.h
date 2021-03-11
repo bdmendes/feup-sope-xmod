@@ -42,6 +42,7 @@ typedef struct XmodCommand {
     union XmodMode mode;
     struct XmodOptions options;
     char file_dir[PATH_MAX];
+    unsigned file_idx;
 } XmodCommand;
 
 #endif
