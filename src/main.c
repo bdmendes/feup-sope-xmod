@@ -30,21 +30,21 @@ int main(int argc, char **argv) {
 
 int test(){
     FilePermissions old;
-    old.user_permissions.read = true;
-    old.user_permissions.write = false;  //5
+    old.user_permissions.read = false;
+    old.user_permissions.write = true;  //3
     old.user_permissions.execute = true;
 
-    old.group_permissions.read = true;
-    old.group_permissions.write = false;  //5
+    old.group_permissions.read = false;
+    old.group_permissions.write = false;  //1
     old.group_permissions.execute = true;
 
     old.other_permissions.read = true;
     old.other_permissions.write = false;  //5
     old.other_permissions.execute = true;
 
-    transform_symbolic_mode_to_octal_mode("-rw",&old);
+    transform_symbolic_mode_to_octal_mode("g+rw",&old);
 
-    printf("%o\n", get_octal_mode(&old)); //must be 655
+    printf("%o\n", get_octal_mode(&old));
 
     return 0;
 }

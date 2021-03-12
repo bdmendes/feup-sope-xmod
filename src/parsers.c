@@ -35,6 +35,23 @@ static void remove_permissions(struct XmodPermissionsTypes *old_permissions, str
     printf("%d\n", old_permissions->execute);
 }
 
+static int calculate_new_permissions(struct XmodPermissionsTypes* old_permissions, struct XmodPermissionsTypes *new_permissions, const char *operator){
+    switch(*operator){
+        case '+':
+            sum_permissions(old_permissions, new_permissions);
+            break;
+        case '-':
+            remove_permissions(old_permissions, new_permissions);
+            break;
+        case '=':
+            *old_permissions = *new_permissions;
+            break;
+        default:
+            return 1; //invalid input
+    }
+    return 0;
+}
+
 int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, FilePermissions *octal_mode){
 
     int operator_index = (symbolic_mode[1] == '+' || symbolic_mode[1] == '-' || symbolic_mode[1] == '=') ? 1 : 0;
@@ -46,69 +63,19 @@ int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, FilePermiss
 
     switch(symbolic_mode[0]){
         case 'u':
-            switch(symbolic_mode[operator_index]){
-                case '+':
-                    sum_permissions(&octal_mode->user_permissions, &new_permissions);
-                    break;
-                case '-':
-                    remove_permissions(&octal_mode->user_permissions, &new_permissions);
-                    break;
-                case '=':
-                    octal_mode->user_permissions = new_permissions;
-                    break;
-                default:
-                    return 1; //invalid input
-            }
+            calculate_new_permissions(&octal_mode->user_permissions, &new_permissions, &symbolic_mode[operator_index]);
             break;
         case 'g':
-            switch(symbolic_mode[operator_index]){
-                case '+':
-                    sum_permissions(&octal_mode->group_permissions, &new_permissions);
-                    break;
-                case '-':
-                    remove_permissions(&octal_mode->group_permissions, &new_permissions);
-                    break;
-                case '=':
-                    octal_mode->group_permissions = new_permissions;
-                default:
-                    return 1; //invalid input
-            }
+            calculate_new_permissions(&octal_mode->group_permissions, &new_permissions, &symbolic_mode[operator_index]);
             break;
         case 'o':
-            switch(symbolic_mode[operator_index]){
-                case '+':
-                    sum_permissions(&octal_mode->other_permissions, &new_permissions);
-                    break;
-                case '-':
-                    remove_permissions(&octal_mode->other_permissions, &new_permissions);
-                    break;
-                case '=':
-                    octal_mode->other_permissions = new_permissions;
-                default:
-                    return 1; //invalid input
-            }
+            calculate_new_permissions(&octal_mode->other_permissions, &new_permissions, &symbolic_mode[operator_index]);
             break;
         case 'a':
         default:
-            switch(symbolic_mode[operator_index]){
-                case '+':
-                    sum_permissions(&octal_mode->user_permissions, &new_permissions);
-                    sum_permissions(&octal_mode->group_permissions, &new_permissions);
-                    sum_permissions(&octal_mode->other_permissions, &new_permissions);
-                    break;
-                case '-':
-                    remove_permissions(&octal_mode->user_permissions, &new_permissions);
-                    remove_permissions(&octal_mode->group_permissions, &new_permissions);
-                    remove_permissions(&octal_mode->other_permissions, &new_permissions);
-                    break;
-                case '=':
-                    octal_mode->user_permissions = new_permissions;
-                    octal_mode->group_permissions = new_permissions;
-                    octal_mode->other_permissions = new_permissions;
-                    break;
-                default:
-                    return 1; //invalid input
-            }
+            calculate_new_permissions(&octal_mode->user_permissions, &new_permissions, &symbolic_mode[operator_index]);
+            calculate_new_permissions(&octal_mode->group_permissions, &new_permissions, &symbolic_mode[operator_index]);
+            calculate_new_permissions(&octal_mode->other_permissions, &new_permissions, &symbolic_mode[operator_index]);
             break;
     }
     return 0;
