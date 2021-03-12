@@ -26,23 +26,25 @@ int main(int argc, char **argv) {
     printf("Current mode: %o\n", file_info.octal_mode);
     printf("File type: %d\n", file_info.file_type);*/
     return 0;
-}
+} 
 
 int test(){
-    /*int octal = 00124;
-    int binary = 0b000000100;
-    printf("%d\n", (octal & binary));*/
-    /*OctalNumber old;
-    old.ls = 7;
-    old.middle = 7;
-    old.ms = 1;
+    FilePermissions old;
+    old.user_permissions.read = true;
+    old.user_permissions.write = false;  //5
+    old.user_permissions.execute = true;
 
-    OctalNumber new;
+    old.group_permissions.read = true;
+    old.group_permissions.write = false;  //5
+    old.group_permissions.execute = true;
 
-    transform_symbolic_mode_to_octal_mode("u+rw", &old, &new);
+    old.other_permissions.read = true;
+    old.other_permissions.write = false;  //5
+    old.other_permissions.execute = true;
 
-    printf("%o", new.ls);
-    printf("%o", new.middle);
-    printf("%o\n", new.ms);*/
+    transform_symbolic_mode_to_octal_mode("-rw",&old);
+
+    printf("%o\n", get_octal_mode(&old)); //must be 655
+
     return 0;
 }

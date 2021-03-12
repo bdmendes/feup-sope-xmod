@@ -19,6 +19,8 @@ typedef struct FilePermissions{
 
 int parse(char **argv, XmodCommand *xmodCommand);
 
-int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, FilePermissions *old_mode, FilePermissions *new_mode);
+int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, FilePermissions *octal_mode);
+
+mode_t get_octal_mode(FilePermissions *permissions);
 
 #endif
