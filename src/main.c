@@ -29,17 +29,20 @@ int main(int argc, char **argv) {
 }
 
 int test(){
-    OctalNumber old;
+    /*int octal = 00124;
+    int binary = 0b000000100;
+    printf("%d\n", (octal & binary));*/
+    /*OctalNumber old;
     old.ls = 7;
     old.middle = 7;
     old.ms = 1;
 
     OctalNumber new;
 
-    transform_symbolic_mode_to_octal_mode("u-rw", &old, &new);
+    transform_symbolic_mode_to_octal_mode("u+rw", &old, &new);
 
     printf("%o", new.ls);
     printf("%o", new.middle);
-    printf("%o\n", new.ms);
+    printf("%o\n", new.ms);*/
     return 0;
 }

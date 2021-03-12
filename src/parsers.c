@@ -4,85 +4,85 @@
 #include <stdio.h>
 #include <ctype.h>
 
-static int get_octal_digit(XmodPermissions permissions){
-   int octal_digit = 0;
-   octal_digit = permissions.execute ? 1 : 0;
-   octal_digit += permissions. write ? 2 : 0;
-   octal_digit += permissions.read ? 4 : 0;
-   return octal_digit;
+void assign_permissions(struct XmodPermissionsTypes *permissions, mode_t octal_mode){
+    permissions->read = octal_mode & 0b100;
+    permissions->write = octal_mode & 0b010;
+    permissions->execute = octal_mode & 0b001;
 }
 
-static void calculate_octal_sum(mode_t *old_mode, mode_t *new_mode){
-    *new_mode += *old_mode;
-    *new_mode = *new_mode > 7 ? 7 : *new_mode;
+FilePermissions parse_octal_mode_to_permissions_struct(mode_t *octal_mode){
+    FilePermissions file_permissions;
+
+    assign_permissions(&file_permissions.other_permissions, (*octal_mode & 0007));
+    assign_permissions(&file_permissions.group_permissions, (*octal_mode & 0070) >> 3);
+    assign_permissions(&file_permissions.user_permissions, (*octal_mode & 0700) >> 6);
+
+    return file_permissions;
 }
 
-static void calculate_octal_subtration(mode_t *old_mode, mode_t *new_mode){
-    *new_mode = old_mode < new_mode ? 0 : old_mode - new_mode;
+void sum_permissions(struct XmodPermissionsTypes* old_permissions, struct XmodPermissionsTypes* new_permissions){
+    new_permissions->read += old_permissions->read;
+    new_permissions->write += old_permissions->write;
+    new_permissions->execute += old_permissions->execute;
 }
 
-static OctalNumber get_digits(mode_t *mode){
-    OctalNumber mode_digits;
-    mode_digits.ls = *mode & 0007;
-    mode_digits.middle = *mode & 0070;
-    mode_digits.ms = *mode & 0700;
-    return mode_digits;
+void remove_permissions(struct XmodPermissionsTypes* old_permissions, struct XmodPermissionsTypes* new_permissions){
+    new_permissions->read = new_permissions->read ? false : new_permissions->read + old_permissions->read;
+    new_permissions->write = new_permissions->write ? false : new_permissions->write + old_permissions->write;
+    new_permissions->execute = new_permissions->execute ? false : new_permissions->execute + old_permissions->execute;
 }
 
-int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, OctalNumber *old_digits, OctalNumber *new_digits){
+int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, FilePermissions *old_mode, FilePermissions *new_mode){
 
     int operator_index = (symbolic_mode[1] == '+' || symbolic_mode[1] == '-' || symbolic_mode[1] == '=') ? 1 : 0;
 
-    XmodPermissions permissions;
+    struct XmodPermissionsTypes permissions;
     permissions.read = strchr(symbolic_mode, 'r') != NULL;
     permissions.write = strchr(symbolic_mode, 'w') != NULL;
     permissions.execute = strchr(symbolic_mode, 'x') != NULL;
 
     switch(symbolic_mode[0]){
         case 'u':
-            new_digits->ms = get_octal_digit(permissions);
+            new_mode->user_permissions = permissions;
             break;
         case 'g':
-            new_digits->middle = get_octal_digit(permissions);
+            new_mode->group_permissions = permissions;
             break;
         case 'o':
-            new_digits->ls = get_octal_digit(permissions);
+            new_mode->other_permissions = permissions;
             break;
         case 'a':
         default:
-            new_digits->ms = get_octal_digit(permissions);
-            new_digits->middle = get_octal_digit(permissions);
-            new_digits->ls = get_octal_digit(permissions);
+            new_mode->user_permissions = permissions;
+            new_mode->group_permissions = permissions;
+            new_mode->other_permissions = permissions;
+
             break;
     }
-    printf("%o", new_digits->ls);
-    printf("%o", new_digits->middle);
-    printf("%o\n", new_digits->ms);
     switch(symbolic_mode[operator_index]){
         case '+':
-            calculate_octal_sum(&old_digits->ls, &new_digits->ls);
-            calculate_octal_sum(&old_digits->middle, &new_digits->middle);
-            calculate_octal_sum(&old_digits->ms, &new_digits->ms);
+            sum_permissions(&old_mode->user_permissions, &new_mode->user_permissions);
+            sum_permissions(&old_mode->group_permissions, &new_mode->group_permissions);
+            sum_permissions(&old_mode->other_permissions, &new_mode->other_permissions);
             break;
         case '-':
-            calculate_octal_subtration(&old_digits->ls, &new_digits->ls);
-            calculate_octal_subtration(&old_digits->middle, &new_digits->middle);
-            calculate_octal_subtration(&old_digits->ms, &new_digits->ms);
+            remove_permissions(&old_mode->user_permissions, &new_mode->user_permissions);
+            remove_permissions(&old_mode->group_permissions, &new_mode->group_permissions);
+            remove_permissions(&old_mode->other_permissions, &new_mode->other_permissions);
             break;
         case '=':
             break;
         default:
             return 1; //invalid input
     }
-    *old_digits = *new_digits;
+    *old_mode = *new_mode;
     return 0;
 }
 
-static mode_t get_mode(OctalNumber *digits){
-    mode_t octal_mode = digits->ls;
-    octal_mode |= (digits->middle << 4);
-    octal_mode |= (digits->ms << 8);
-    return octal_mode;
+static mode_t get_octal_mode(FilePermissions *permissions){
+    return permissions->user_permissions.read*S_IRUSR | permissions->user_permissions.write*S_IWUSR | permissions->user_permissions.execute*S_IXUSR |
+        permissions->group_permissions.read*S_IRGRP | permissions->group_permissions.write*S_IWGRP | permissions->group_permissions.execute*S_IXGRP |
+        permissions->other_permissions.read*S_IROTH | permissions->other_permissions.write*S_IWOTH | permissions->other_permissions.execute*S_IXOTH;
 }
 
 static int parse_symbolic_mode(char *mode, XmodCommand *xmodCommand){
@@ -90,26 +90,25 @@ static int parse_symbolic_mode(char *mode, XmodCommand *xmodCommand){
     FileInfo file_info;
     retrieve_file_info(&file_info, xmodCommand->file_dir);
 
-    OctalNumber old_digits = get_digits(&old_mode);
-    OctalNumber new_digits;
+    FilePermissions old_mode_permissions = parse_octal_mode_to_permissions_struct(&old_mode);
+    FilePermissions new_mode_permissions;
 
     const char sep[2] = ",";
     char *symbolic_mode;   
     symbolic_mode = strtok(mode, sep);
    
     while(symbolic_mode != NULL) {
-        transform_symbolic_mode_to_octal_mode(symbolic_mode, &old_digits, &new_digits);
+        transform_symbolic_mode_to_octal_mode(symbolic_mode, &old_mode_permissions, &new_mode_permissions);
         symbolic_mode = strtok(NULL, sep);
     }
 
-    xmodCommand->octal_mode = get_mode(&new_digits);
+    xmodCommand->octal_mode = get_octal_mode(&new_mode_permissions);
     return 0;
 }
 
 static int parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand){
     char* buf;
     mode_t mode = strtoul(mode_str, &buf, 8) & 0777;
-    //xmodCommand->mode_type = OCTAL_MODE;
     xmodCommand->octal_mode = mode;
     return 0;
 }

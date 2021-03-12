@@ -26,13 +26,6 @@ struct XmodOptions {
     bool recursive;
 };
 
-typedef struct XmodPermissions{
-    bool read;
-    bool write;
-    bool execute;
-    bool all;
-}XmodPermissions;
-
 typedef struct OctalNumber{
     mode_t ls;
     mode_t middle;
