@@ -3,23 +3,22 @@
 
 #include <string.h>
 #include "xmod.h"
-#include "retrievers.h"
 
-struct XmodPermissionsTypes{
+typedef struct XmodPermissionsTypes{
     bool read;
     bool write;
     bool execute;
-};
+} XmodPermissionsTypes;
 
 typedef struct FilePermissions{
-    struct XmodPermissionsTypes user_permissions;
-    struct XmodPermissionsTypes group_permissions;
-    struct XmodPermissionsTypes other_permissions;
+    struct XmodPermissionsTypes user;
+    struct XmodPermissionsTypes group;
+    struct XmodPermissionsTypes other;
 }FilePermissions;
 
 int parse(char **argv, XmodCommand *xmodCommand);
 
-int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, FilePermissions *octal_mode);
+int update_permissions(const char *symbolic_mode, FilePermissions *octal_mode);
 
 mode_t get_octal_mode(FilePermissions *permissions);
 

@@ -1,155 +1,162 @@
-#include "xmod.h"
 #include "parsers.h"
-#include <stdlib.h>
-#include <stdio.h>
+#include "retrievers.h"
+
 #include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-static void assign_permissions(struct XmodPermissionsTypes *permissions, mode_t octal_mode)
-{
-    permissions->read = octal_mode & 0b100;
-    permissions->write = octal_mode & 0b010;
-    permissions->execute = octal_mode & 0b001;
+#include "xmod.h"
+
+static void assign_permissions(XmodPermissionsTypes *permissions,
+                               mode_t octal_mode) {
+    permissions->read = octal_mode & 04;
+    permissions->write = octal_mode & 02;
+    permissions->execute = octal_mode & 01;
 }
 
-static FilePermissions parse_octal_mode_to_permissions_struct(mode_t *octal_mode)
-{
-    FilePermissions file_permissions;
-
-    assign_permissions(&file_permissions.other_permissions, (*octal_mode & 0007));
-    assign_permissions(&file_permissions.group_permissions, (*octal_mode & 0070) >> 3);
-    assign_permissions(&file_permissions.user_permissions, (*octal_mode & 0700) >> 6);
-
-    return file_permissions;
+static void assemble_permissions(mode_t octal_mode,
+                                 FilePermissions *file_permissions) {
+    assign_permissions(&file_permissions->other, octal_mode & 0007);
+    assign_permissions(&file_permissions->group, (octal_mode & 0070) >> 3);
+    assign_permissions(&file_permissions->user, (octal_mode & 0700) >> 6);
 }
 
-static void sum_permissions(struct XmodPermissionsTypes *old_permissions, struct XmodPermissionsTypes *new_permissions)
-{
-    old_permissions->read += new_permissions->read;
-    old_permissions->write += new_permissions->write;
-    old_permissions->execute += new_permissions->execute;
+static void add_permissions(XmodPermissionsTypes *old_permissions,
+                            XmodPermissionsTypes *changes) {
+    old_permissions->read |= changes->read;
+    old_permissions->write |= changes->write;
+    old_permissions->execute |= changes->execute;
 }
 
-static void remove_permissions(struct XmodPermissionsTypes *old_permissions, struct XmodPermissionsTypes *new_permissions)
-{
-    old_permissions->read = new_permissions->read ? false : old_permissions->read;
-    old_permissions->write = new_permissions->write ? false : old_permissions->write;
-    old_permissions->execute = new_permissions->execute ? false : old_permissions->execute;
+static void remove_permissions(XmodPermissionsTypes *curr_permissions,
+                               const struct XmodPermissionsTypes *changes) {
+    if (changes->read)
+        curr_permissions->read = false;
+    if (changes->write)
+        curr_permissions->write = false;
+    if (changes->execute)
+        curr_permissions->execute = false;
 }
 
-static int calculate_new_permissions(struct XmodPermissionsTypes *old_permissions, struct XmodPermissionsTypes *new_permissions, const char *operator)
-{
-    switch (*operator)
-    {
-    case '+':
-        sum_permissions(old_permissions, new_permissions);
-        break;
-    case '-':
-        remove_permissions(old_permissions, new_permissions);
-        break;
-    case '=':
-        *old_permissions = *new_permissions;
-        break;
-    default:
-        return 1; //invalid input
+static int update_curr_permissions(XmodPermissionsTypes *old_permissions,
+                                   XmodPermissionsTypes *new_permissions,
+                                   const char operator) {
+    switch (operator) {
+        case '+':
+            add_permissions(old_permissions, new_permissions);
+            break;
+        case '-':
+            remove_permissions(old_permissions, new_permissions);
+            break;
+        case '=':
+            *old_permissions = *new_permissions;
+            break;
+        default:
+            return 1; // invalid input
     }
     return 0;
 }
 
-int transform_symbolic_mode_to_octal_mode(const char *symbolic_mode, FilePermissions *octal_mode)
-{
+int update_permissions(const char input_symbolic_mode[],
+                       FilePermissions *permissions) {
+    int operator_index =
+        (input_symbolic_mode[1] == '+' || input_symbolic_mode[1] == '-' ||
+         input_symbolic_mode[1] == '=')
+            ? 1
+            : 0;
 
-    int operator_index = (symbolic_mode[1] == '+' || symbolic_mode[1] == '-' || symbolic_mode[1] == '=') ? 1 : 0;
+    XmodPermissionsTypes input_permissions;
+    input_permissions.read = strchr(input_symbolic_mode, 'r') != NULL;
+    input_permissions.write = strchr(input_symbolic_mode, 'w') != NULL;
+    input_permissions.execute = strchr(input_symbolic_mode, 'x') != NULL;
 
-    struct XmodPermissionsTypes new_permissions;
-    new_permissions.read = strchr(symbolic_mode, 'r') != NULL;
-    new_permissions.write = strchr(symbolic_mode, 'w') != NULL;
-    new_permissions.execute = strchr(symbolic_mode, 'x') != NULL;
-
-    switch (symbolic_mode[0])
-    {
-    case 'u':
-        calculate_new_permissions(&octal_mode->user_permissions, &new_permissions, &symbolic_mode[operator_index]);
-        break;
-    case 'g':
-        calculate_new_permissions(&octal_mode->group_permissions, &new_permissions, &symbolic_mode[operator_index]);
-        break;
-    case 'o':
-        calculate_new_permissions(&octal_mode->other_permissions, &new_permissions, &symbolic_mode[operator_index]);
-        break;
-    case 'a':
-    default:
-        calculate_new_permissions(&octal_mode->user_permissions, &new_permissions, &symbolic_mode[operator_index]);
-        calculate_new_permissions(&octal_mode->group_permissions, &new_permissions, &symbolic_mode[operator_index]);
-        calculate_new_permissions(&octal_mode->other_permissions, &new_permissions, &symbolic_mode[operator_index]);
-        break;
+    switch (input_symbolic_mode[0]) {
+        case 'u':
+            update_curr_permissions(&permissions->user, &input_permissions,
+                                    input_symbolic_mode[operator_index]);
+            break;
+        case 'g':
+            update_curr_permissions(&permissions->group, &input_permissions,
+                                    input_symbolic_mode[operator_index]);
+            break;
+        case 'o':
+            update_curr_permissions(&permissions->other, &input_permissions,
+                                    input_symbolic_mode[operator_index]);
+            break;
+        case 'a':
+        default:
+            update_curr_permissions(&permissions->user, &input_permissions,
+                                    input_symbolic_mode[operator_index]);
+            update_curr_permissions(&permissions->group, &input_permissions,
+                                    input_symbolic_mode[operator_index]);
+            update_curr_permissions(&permissions->other, &input_permissions,
+                                    input_symbolic_mode[operator_index]);
+            break;
     }
     return 0;
 }
 
-mode_t get_octal_mode(FilePermissions *permissions)
-{
-    return permissions->user_permissions.read * S_IRUSR | permissions->user_permissions.write * S_IWUSR | permissions->user_permissions.execute * S_IXUSR |
-           permissions->group_permissions.read * S_IRGRP | permissions->group_permissions.write * S_IWGRP | permissions->group_permissions.execute * S_IXGRP |
-           permissions->other_permissions.read * S_IROTH | permissions->other_permissions.write * S_IWOTH | permissions->other_permissions.execute * S_IXOTH;
+mode_t get_octal_mode(FilePermissions *permissions) {
+    return permissions->user.read * S_IRUSR |
+           permissions->user.write * S_IWUSR |
+           permissions->user.execute * S_IXUSR |
+           permissions->group.read * S_IRGRP |
+           permissions->group.write * S_IWGRP |
+           permissions->group.execute * S_IXGRP |
+           permissions->other.read * S_IROTH |
+           permissions->other.write * S_IWOTH |
+           permissions->other.execute * S_IXOTH;
 }
 
-int parse_symbolic_mode(char *mode, XmodCommand *xmodCommand)
-{
-    mode_t old_mode;
+int parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
+    mode_t curr_mode;
     FileInfo file_info;
     retrieve_file_info(&file_info, xmodCommand->file_dir);
+    curr_mode = file_info.octal_mode;
 
-    FilePermissions mode_permissions = parse_octal_mode_to_permissions_struct(&old_mode);
+    FilePermissions curr_mode_permissions;
+    assemble_permissions(curr_mode, &curr_mode_permissions);
+
     const char sep[2] = ",";
-    char *symbolic_mode;
-    symbolic_mode = strtok(mode, sep);
-
-    while (symbolic_mode != NULL)
-    {
-        transform_symbolic_mode_to_octal_mode(symbolic_mode, &mode_permissions);
-        symbolic_mode = strtok(NULL, sep);
+    for (char *i = strtok(symbolic_mode, sep); i != NULL;) {
+        update_permissions(i, &curr_mode_permissions);
+        i = strtok(NULL, sep);
     }
 
-    xmodCommand->octal_mode = get_octal_mode(&mode_permissions);
+    xmodCommand->octal_mode = get_octal_mode(&curr_mode_permissions);
     return 0;
 }
 
-static int parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand)
-{
+static int parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand) {
     char *buf;
     mode_t mode = strtoul(mode_str, &buf, 8) & 0777;
     xmodCommand->octal_mode = mode;
     return 0;
 }
 
-static void parse_options(const char *options, XmodCommand *xmodCommand)
-{
-    xmodCommand->options.recursive = strchr(options, 'R') != NULL;
-    xmodCommand->options.verbose = strchr(options, 'v') != NULL;
-    xmodCommand->options.changes = strchr(options, 'c') != NULL && !xmodCommand->options.verbose;
+static void parse_options(const char *options, XmodCommand *xmodCommand) {
+    xmodCommand->options.recursive |= strchr(options, 'R') != NULL;
+    xmodCommand->options.verbose |= strchr(options, 'v') != NULL;
+    xmodCommand->options.changes |=
+        strchr(options, 'c') != NULL && !xmodCommand->options.verbose;
 }
 
-int parse(char **argv, XmodCommand *xmodCommand)
-{
+int parse(char **argv, XmodCommand *xmodCommand) {
     int mode_index = 1;
 
-    if (argv[mode_index][0] == '-')
-    {
-        mode_index++;
-        parse_options(argv[2], xmodCommand);
-    }
-
-    if (isdigit(argv[mode_index][0]))
-    { // create util to check entire string
-        parse_octal_mode(argv[mode_index], xmodCommand);
-    }
-    else
-    {
-        parse_symbolic_mode(argv[mode_index], xmodCommand);
+    memset(&xmodCommand->options, 0, sizeof(xmodCommand->options));
+    while (0 && argv[mode_index][0] == '-') {
+        parse_options(argv[mode_index++], xmodCommand);
     }
 
     // should pass argc to this function to check here
-    xmodCommand->file_dir = argv[mode_index + 1];
+    strcpy(xmodCommand->file_dir, argv[mode_index + 1]);
+
+    if (isdigit(argv[mode_index][0])) { // create util to check entire string
+        parse_octal_mode(argv[mode_index], xmodCommand);
+    } else {
+        parse_symbolic_mode(argv[mode_index], xmodCommand);
+    }
 
     return 0;
 }

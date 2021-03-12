@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <sys/stat.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -8,44 +8,33 @@
 
 int test_conversion_of_symbolic_mode_to_octal_mode();
 
-int main(int argc, char **argv)
-{
-
+int main(int argc, char **argv) {
     XmodCommand cmd;
     parse(argv, &cmd);
-    printf("mode: %o\n", cmd.octal_mode);
-    if (chmod(cmd.file_dir, cmd.octal_mode) == -1)
-    {
+    printf("file_name: %s, mode: %o\n", cmd.file_dir, cmd.octal_mode);
+
+    if (chmod(cmd.file_dir, cmd.octal_mode) == -1) {
         perror("chmod call failed");
         return -1;
     }
-    test_conversion_of_symbolic_mode_to_octal_mode();
-
-    char *file_path = argv[2];
-    FileInfo file_info;
-    retrieve_file_info(&file_info, file_path);
-    printf("Relative path: %s\n", file_info.path);
-    printf("Current mode: %o\n", file_info.octal_mode);
-    printf("File type: %d\n", file_info.file_type);
     return 0;
 }
 
-int test_conversion_of_symbolic_mode_to_octal_mode()
-{
+int test_conversion_of_symbolic_mode_to_octal_mode() {
     FilePermissions old;
-    old.user_permissions.read = false;
-    old.user_permissions.write = true; //3
-    old.user_permissions.execute = true;
+    old.user.read = false;
+    old.user.write = true; // 3
+    old.user.execute = true;
 
-    old.group_permissions.read = false;
-    old.group_permissions.write = true; //2
-    old.group_permissions.execute = false;
+    old.group.read = false;
+    old.group.write = true; // 2
+    old.group.execute = false;
 
-    old.other_permissions.read = true;
-    old.other_permissions.write = false; //5
-    old.other_permissions.execute = true;
+    old.other.read = true;
+    old.other.write = false; // 5
+    old.other.execute = true;
 
-    transform_symbolic_mode_to_octal_mode("-w", &old);
+    update_permissions("-w", &old);
 
     printf("%o\n", get_octal_mode(&old));
 
