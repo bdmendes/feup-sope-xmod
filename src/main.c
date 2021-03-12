@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 int process(char **argv) { // pass log too
     XmodCommand cmd;
     // Hard coded; parse here
-    cmd.mode.octal_mode = 0744;
+    cmd.mode.octal_mode = 0777;
     cmd.mode_type = OCTAL_MODE;
     cmd.options.recursive = true;
     cmd.file_idx = 3;
@@ -51,11 +51,17 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx) {
     struct dirent *dirent;
     while ((dirent = readdir(dp)) != NULL) {
         if (!is_ref_path(dirent->d_name)) {
-            char new_path_buf[PATH_MAX];
-            strcpy(new_path_buf, dir_path);
-            argv[file_idx] = append_path(new_path_buf, dirent->d_name);
+            char new_path[PATH_MAX];
+            sprintf(new_path, "%s/%s", dir_path, dirent->d_name);
+            argv[file_idx] = new_path;
 
-            if (dirent->d_type == DT_DIR) {
+            FileInfo file_info;
+            if (retrieve_file_info(&file_info, new_path) != 0) {
+                perror("could not retrieve file info");
+                return -1;
+            }
+
+            if (file_info.type == DT_DIR) {
                 pid_t id = fork();
                 if (id == 0) {
                     execvp(argv[0], argv);
@@ -65,7 +71,7 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx) {
                     perror("fork failed");
                     return -1;
                 }
-            } else if (dirent->d_type != DT_LNK) {
+            } else if (file_info.type != DT_LNK) {
                 process(argv);
             }
         }
