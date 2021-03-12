@@ -8,7 +8,7 @@
 #include "retrievers.h"
 #include "utils.h"
 
-int transverse(char *argv[], char dir_path[], unsigned file_idx);
+int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
 int main(int argc, char **argv) {
@@ -36,12 +36,12 @@ int process(char **argv) { // pass log too
     printf("Changing file permissions: %s\n", cmd.file_dir);
 
     if (cmd.options.recursive && file_info.type == DT_DIR) {
-        transverse(argv, cmd.file_dir, cmd.file_idx);
+        traverse(argv, cmd.file_dir, cmd.file_idx);
     }
     return 0;
 }
 
-int transverse(char *argv[], char dir_path[], unsigned file_idx) {
+int traverse(char *argv[], char dir_path[], unsigned file_idx) {
     DIR *dp = opendir(dir_path);
     if (dp == NULL) {
         perror("could not open directory");
