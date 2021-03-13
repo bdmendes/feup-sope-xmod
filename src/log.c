@@ -13,12 +13,12 @@ static int log_fd = -1;
 int setup_event_logging() {
     char *dir = getenv("LOG_FILENAME");
     if (dir == NULL) {
-        perror("LOG_FILENAME environment variable not found");
+        fprintf(stderr, "LOG_FILENAME environment variable not found\n");
         return -1;
     }
     int fd = open(dir, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
     if (fd == -1) {
-        fprintf(stderr, "could not open %s", dir);
+        perror("log file open");
         return -1;
     }
     time_init = clock();
@@ -75,7 +75,7 @@ int log_event(XMOD_EVENT event, const EventLog *inf) {
 
 int close_log_file() {
     if (close(log_fd) != 0) {
-        perror("could not close log file");
+        perror("log file close");
         return -1;
     }
     return 0;
