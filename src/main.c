@@ -9,6 +9,7 @@
 #include "parsers.h"
 #include "retrievers.h"
 #include "utils.h"
+#include "sig.h"
 
 int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
@@ -111,3 +112,14 @@ int test_conversion_of_symbolic_mode_to_octal_mode() {
 
     return 0;
 }
+/*
+void test_signal(){
+    setup_event_logging();
+    set_file("nckdjsnc");
+    set_handler_SIGINT();
+    while(get_running()){
+        printf("hello\n");
+        sleep(1);
+    }
+    printf("heillo");
+}*/
