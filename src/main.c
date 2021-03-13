@@ -14,16 +14,16 @@
 int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
+
 int main(int argc, char **argv) {
-    test_signal();
-  /*  setup_event_logging();
+    setup_event_logging();
     EventLog event_log;
     event_log.perms.file_name = "my-file-name";
     event_log.perms.new = 0777;
     event_log.perms.old = 0333;
     log_event(FILE_MODF, &event_log);
     process(argv);
-    close_log_file();*/
+    close_log_file();
 }
 
 int process(char **argv) { // pass log too
@@ -113,3 +113,14 @@ int test_conversion_of_symbolic_mode_to_octal_mode() {
 
     return 0;
 }
+/*
+void test_signal(){
+    setup_event_logging();
+    set_file("nckdjsnc");
+    set_handler_SIGINT();
+    while(get_running()){
+        printf("hello\n");
+        sleep(1);
+    }
+    printf("heillo");
+}*/

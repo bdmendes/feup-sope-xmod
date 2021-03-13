@@ -8,9 +8,9 @@ void handler_SIGINT(int signo);
 
 void set_file(char* file);
 
-void set_nftot(char* file);
+void set_nftot();
 
-void set_nfmod(char* file);
+void set_nfmod();
 
 bool get_running();
 
