@@ -1,17 +1,18 @@
-#include <stdio.h>
-
 #include "retrievers.h"
-#include "xmod.h"
+#include <dirent.h>
+#include <stdio.h>
 
 static void assemble_file_info(FileInfo *file_info, const mode_t mode,
                                const char *path);
 
 static int retrieve_file_mode(const char *path_name, mode_t *file_mode);
 
-void retrieve_file_info(FileInfo *file_info, char *file_path) {
+int retrieve_file_info(FileInfo *file_info, char *file_path) {
     mode_t mode = 0;
-    retrieve_file_mode(file_path, &mode);
+    if (retrieve_file_mode(file_path, &mode) != 0)
+        return -1;
     assemble_file_info(file_info, mode, file_path);
+    return 0;
 }
 
 static void assemble_file_info(FileInfo *file_info, const mode_t mode,
@@ -20,21 +21,21 @@ static void assemble_file_info(FileInfo *file_info, const mode_t mode,
     file_info->octal_mode = mode & 0777;
 
     if (S_ISREG(mode))
-        file_info->file_type = REGULAR;
+        file_info->type = DT_REG;
     else if (S_ISDIR(mode))
-        file_info->file_type = DIRECTORY;
+        file_info->type = DT_DIR;
     else if (S_ISCHR(mode))
-        file_info->file_type = CHAR_SPECIAL;
+        file_info->type = DT_CHR;
     else if (S_ISBLK(mode))
-        file_info->file_type = BLOCK_SPECIAL;
+        file_info->type = DT_BLK;
     else if (S_ISFIFO(mode))
-        file_info->file_type = FIFO;
+        file_info->type = DT_FIFO;
     else if (S_ISLNK(mode))
-        file_info->file_type = SYMBOLIC_LINK;
+        file_info->type = DT_LNK;
     else if (S_ISSOCK(mode))
-        file_info->file_type = SOCKET;
+        file_info->type = DT_SOCK;
     else
-        file_info->file_type = -1;
+        file_info->type = DT_UNKNOWN;
 }
 
 static int retrieve_file_mode(const char *path_name, mode_t *file_mode) {
