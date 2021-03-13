@@ -14,7 +14,6 @@
 int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
-
 int main(int argc, char **argv) {
     setup_event_logging();
     EventLog event_log;

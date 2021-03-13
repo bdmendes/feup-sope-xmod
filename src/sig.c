@@ -21,9 +21,8 @@ void handler_SIGINT(int signo){
     printf("\n%d ; %s ; %d ; %d \n",  getpid(), file_dir, nftot, nfmod);
 	printf("Do you wish to continue? [Y/N]\n");
 	char buf[100];
-    char *answer = buf;
-	scanf("%c", answer);
-	if(*answer != 'y' && *answer != 'Y'){
+    scanf("%c", buf);
+	if(buf[0] != 'y' && buf[0] != 'Y'){
 		running = false;
 	}
 	while ( getchar() != '\n' );
@@ -58,11 +57,11 @@ void set_file(char* file){
 	file_dir = file;
 }
 
-void set_nftot(char* file){
+void increment_nftot(){
 	nftot += 1;
 }
 
-void set_nfmod(char* file){
+void increment_nfmod(){
 	nfmod += 1;
 }
 
