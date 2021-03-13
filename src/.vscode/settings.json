@@ -1,7 +1,0 @@
-{
-    "clang-format.style": "{BasedOnStyle: LLVM, IndentWidth: 4, AllowShortBlocksOnASingleLine: Never, AllowShortCaseLabelsOnASingleLine: false, AllowShortFunctionsOnASingleLine: None, IndentCaseLabels: true}",
-    "editor.formatOnSave": true,
-    "editor.tabSize": 4,
-    "editor.wordWrap": "bounded",
-    "editor.wordWrapColumn": 100,
-}
