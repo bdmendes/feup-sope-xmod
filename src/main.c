@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "log.h"
 #include "parsers.h"
 #include "retrievers.h"
 #include "utils.h"
@@ -13,8 +14,14 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
 int main(int argc, char **argv) {
-    // init logs too...
+    setup_event_logging();
+    EventLog event_log;
+    event_log.perms.file_name = "my-file-name";
+    event_log.perms.new = 0777;
+    event_log.perms.old = 0333;
+    log_event(FILE_MODF, &event_log);
     process(argv);
+    close_log_file();
 }
 
 int process(char **argv) { // pass log too
@@ -23,6 +30,7 @@ int process(char **argv) { // pass log too
     printf("file_name: %s, mode: %o\n", cmd.file_dir, cmd.octal_mode);
 
     FileInfo file_info;
+
     if (retrieve_file_info(&file_info, cmd.file_dir) != 0) {
         perror("could not retrieve file info");
         return -1;

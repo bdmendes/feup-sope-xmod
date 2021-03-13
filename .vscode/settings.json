@@ -7,6 +7,9 @@
     "files.associations": {
         "stat.h": "c",
         "stdio.h": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "*.tcc": "c",
+        "cmath": "c",
+        "time.h": "c"
     },
 }
