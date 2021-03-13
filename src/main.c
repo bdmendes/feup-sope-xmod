@@ -15,7 +15,9 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
 int main(int argc, char **argv) {
+    set_file("nckdjsnc");
     set_handler_SIGINT();
+    sleep(10);
     printf("hello");
     /*setup_event_logging();
     EventLog event_log;
