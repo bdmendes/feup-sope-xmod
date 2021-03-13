@@ -21,6 +21,7 @@ int main(int argc, char **argv) {
     event_log.perms.old = 0333;
     log_event(FILE_MODF, &event_log);
     process(argv);
+    close_log_file();
 }
 
 int process(char **argv) { // pass log too

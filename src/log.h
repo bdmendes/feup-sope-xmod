@@ -27,6 +27,6 @@ int log_event(XMOD_EVENT event, const EventLog *inf);
 
 int setup_event_logging();
 
-int log_close(int file);
+int close_log_file();
 
 #endif

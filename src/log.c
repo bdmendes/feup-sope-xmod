@@ -73,8 +73,8 @@ int log_event(XMOD_EVENT event, const EventLog *inf) {
     return 0;
 }
 
-int log_close(int file) {
-    if (close(file) != 0) {
+int close_log_file() {
+    if (close(log_fd) != 0) {
         perror("could not close log file");
         return -1;
     }
