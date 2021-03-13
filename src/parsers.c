@@ -152,7 +152,7 @@ int parse(char **argv, XmodCommand *xmodCommand) {
   // should pass argc to this function to check here
   strcpy(xmodCommand->file_dir, argv[mode_index + 1]);
 
-  if (isdigit(argv[mode_index][0])) { // create util to check entire string
+  if (is_number_arg(argv[mode_index])) {
     parse_octal_mode(argv[mode_index], xmodCommand);
   } else {
     parse_symbolic_mode(argv[mode_index], xmodCommand);
