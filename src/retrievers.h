@@ -13,5 +13,4 @@ typedef struct FileInfo {
 
 int retrieve_file_info(FileInfo *file_info, char *file_path);
 
-
 #endif
