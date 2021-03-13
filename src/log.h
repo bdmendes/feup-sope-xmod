@@ -1,11 +1,9 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "xmod.h"
+#include <sys/types.h>
 
-union EventLog{
+typedef union EventLog{
     struct {
         int argc_info;
         char **argv_info;
@@ -14,18 +12,18 @@ union EventLog{
     char* signal_received;
     struct {
         char* signal_sent;
-        int pid_sent;
+        pid_t pid_sent;
     } sent;
     struct {
-        char* name_file;
-        mode_t old_perms;
-        mode_t new_perms;
-    } perm;
-};
+        char* file_name;
+        mode_t old;
+        mode_t new;
+    } perms;
+} EventLog;
 
-enum XMOD_EVENT { PROC_CREAT, PROC_EXIT, SIGNAL_RECV, SIGNAL_SENT, FILE_MODF };
+typedef enum XMOD_EVENT { PROC_CREAT, PROC_EXIT, SIGNAL_RECV, SIGNAL_SENT, FILE_MODF } XMOD_EVENT;
 
-int log_file(int file, enum XMOD_EVENT event, const union EventLog *inf);
+int log_event(XMOD_EVENT event, const EventLog *inf);
 
 int setup_event_logging();
 

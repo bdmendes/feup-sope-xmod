@@ -1,86 +1,81 @@
+#include "log.h"
+#include "xmod.h"
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <string.h>
-#include "xmod.h"
-#include "log.h"
-#include <signal.h>
-#include <fcntl.h>
+#include <time.h>
+#include <unistd.h>
 
-//static const char *PROGRAM_NAME = "xmod";
-// Continue with options, perhaps in a header file
 static clock_t time_init;
+static int log_fd = -1;
 
-
-int setup_event_logging(){
+int setup_event_logging() {
+    char *dir = getenv("LOG_FILENAME");
+    if (dir == NULL) {
+        perror("LOG_FILENAME environment variable not found");
+        return -1;
+    }
+    int fd = open(dir, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
+    if (fd == -1) {
+        fprintf(stderr, "could not open %s", dir);
+        return -1;
+    }
     time_init = clock();
-    char* dir = getenv("LOG_FILENAME");
-    if(dir == NULL){
-        fprintf(stderr, "ENVP not found\n");
-        return -1;
-    }
-    int val_open = open(dir, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
-    if(val_open == -1){
-        fprintf(stderr, "Not open\n");
-        return -1;
-    }
-    return val_open;
+    log_fd = fd;
+    return 0;
 }
 
-int log_file(int file, enum XMOD_EVENT event, const union EventLog *inf){   
-  //time  
-  clock_t time = clock();
-  double mili_secs = (double) (time - time_init) / CLOCKS_PER_SEC *1000.0;
-  char to_wrt[50];
-  sprintf(to_wrt, "%f ; ", mili_secs);
-  write(file, to_wrt, strlen(to_wrt));
-  
-  //pid
-  pid_t pid = getpid();
-  sprintf(to_wrt, "%d ; ", pid);
-  write(file, to_wrt, strlen(to_wrt));
-  //event and info
-  switch(event){
-    case PROC_CREAT:
-        sprintf(to_wrt, "PROC_CREAT ;");
-        write(file, to_wrt, strlen(to_wrt));
-        for(int i= 0; i<inf->arg.argc_info; i++){
-            sprintf(to_wrt, " %s", inf->arg.argv_info[i]);
-            write(file, to_wrt, strlen(to_wrt));
-        }
-        sprintf(to_wrt, "\n");
-        write(file, to_wrt, strlen(to_wrt));
-        break;
-    case PROC_EXIT:
-        sprintf(to_wrt, "PROC_EXIT ; %d\n", inf->exit_code);
-        write(file, to_wrt, strlen(to_wrt));
-        break;
-    case SIGNAL_RECV:
-        sprintf(to_wrt, "SIGNAL_RECV ; %s\n", inf->signal_received);
-        write(file, to_wrt, strlen(to_wrt));
-        break;
-    case SIGNAL_SENT:
-        sprintf(to_wrt, "SIGNAL_SENT ; %s : %d\n", inf->sent.signal_sent, inf->sent.pid_sent);
-        write(file, to_wrt, strlen(to_wrt));
-        break;
-    case FILE_MODF:
-        sprintf(to_wrt, "FILE_MODF ; %s : %o : %o\n", inf->perm.name_file, inf->perm.old_perms, inf->perm.new_perms);
-        write(file, to_wrt, strlen(to_wrt));
-        break;
-    default:
-        break;
+int log_event(XMOD_EVENT event, const EventLog *inf) {
+    char buf[PATH_MAX];
+    char *curr_buf = buf;
+
+    // time
+    clock_t time = clock();
+    double time_passed_mili_secs =
+        (double)(time - time_init) / CLOCKS_PER_SEC * 1000.0;
+    curr_buf += sprintf(curr_buf, "%f ; ", time_passed_mili_secs);
+
+    // pid
+    pid_t pid = getpid();
+    curr_buf += sprintf(curr_buf, "%d ; ", pid);
+
+    // event and info
+    switch (event) {
+        case PROC_CREAT:
+            curr_buf += sprintf(curr_buf, "PROC_CREAT ;");
+            for (int i = 0; i < inf->arg.argc_info; i++) {
+                curr_buf += sprintf(curr_buf, " %s", inf->arg.argv_info[i]);
+            }
+            curr_buf += sprintf(curr_buf, "\n");
+            break;
+        case PROC_EXIT:
+            curr_buf += sprintf(curr_buf, "PROC_EXIT ; %d\n", inf->exit_code);
+            break;
+        case SIGNAL_RECV:
+            curr_buf +=
+                sprintf(curr_buf, "SIGNAL_RECV ; %s\n", inf->signal_received);
+            break;
+        case SIGNAL_SENT:
+            curr_buf += sprintf(curr_buf, "SIGNAL_SENT ; %s : %d\n",
+                                inf->sent.signal_sent, inf->sent.pid_sent);
+            break;
+        case FILE_MODF:
+            curr_buf +=
+                sprintf(curr_buf, "FILE_MODF ; %s : %o : %o\n",
+                        inf->perms.file_name, inf->perms.old, inf->perms.new);
+            break;
+        default:
+            return -1;
     }
-  return 0;
+
+    write(log_fd, buf, strlen(buf));
+    return 0;
 }
 
-int log_close(int file){
-    int val_close = close(file);
-    if(val_close!=0){ 
-        fprintf(stderr, "Not closed\n");
+int log_close(int file) {
+    if (close(file) != 0) {
+        perror("could not close log file");
         return -1;
     }
     return 0;

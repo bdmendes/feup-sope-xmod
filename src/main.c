@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "log.h"
 #include "parsers.h"
 #include "retrievers.h"
 #include "utils.h"
@@ -13,7 +14,12 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
 int main(int argc, char **argv) {
-    // init logs too...
+    setup_event_logging();
+    EventLog event_log;
+    event_log.perms.file_name = "my-file-name";
+    event_log.perms.new = 0777;
+    event_log.perms.old = 0333;
+    log_event(FILE_MODF, &event_log);
     process(argv);
 }
 
