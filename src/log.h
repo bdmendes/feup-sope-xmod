@@ -25,10 +25,10 @@ union EventLog{
 
 enum XMOD_EVENT { PROC_CREAT, PROC_EXIT, SIGNAL_RECV, SIGNAL_SENT, FILE_MODF };
 
-int log_file(FILE* file, enum XMOD_EVENT event, const union EventLog *inf);
+int log_file(int file, enum XMOD_EVENT event, const union EventLog *inf);
 
-FILE* setup_event_logging();
+int setup_event_logging();
 
-int log_close(FILE* file);
+int log_close(int file);
 
 #endif

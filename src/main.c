@@ -7,7 +7,7 @@
 // Continue with options, perhaps in a header file
 
 int main(int argc, char **argv, char *envp[]) {
-  FILE* my_file = setup_event_logging();
+  int my_file = setup_event_logging();
   union EventLog nj;
   nj.exit_code = 1;
   log_file(my_file, PROC_EXIT, &nj);

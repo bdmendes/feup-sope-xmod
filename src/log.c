@@ -9,55 +9,67 @@
 #include "xmod.h"
 #include "log.h"
 #include <signal.h>
+#include <fcntl.h>
 
 //static const char *PROGRAM_NAME = "xmod";
 // Continue with options, perhaps in a header file
 static clock_t time_init;
 
-FILE* setup_event_logging(){
+
+int setup_event_logging(){
     time_init = clock();
     char* dir = getenv("LOG_FILENAME");
     if(dir == NULL){
         fprintf(stderr, "ENVP not found\n");
-        return NULL;
+        return -1;
     }
-    FILE* val_open = fopen(dir, "w");
-    if(val_open == NULL){
+    int val_open = open(dir, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
+    if(val_open == -1){
         fprintf(stderr, "Not open\n");
-        return NULL;
+        return -1;
     }
     return val_open;
 }
 
-int log_file(FILE* file, enum XMOD_EVENT event, const union EventLog *inf){   
+int log_file(int file, enum XMOD_EVENT event, const union EventLog *inf){   
   //time  
   clock_t time = clock();
   double mili_secs = (double) (time - time_init) / CLOCKS_PER_SEC *1000.0;
-  fprintf(file, "%f ; ", mili_secs);
+  char to_wrt[50];
+  sprintf(to_wrt, "%f ; ", mili_secs);
+  write(file, to_wrt, strlen(to_wrt));
   
   //pid
   pid_t pid = getpid();
-  fprintf(file, "%d ; ", pid);
+  sprintf(to_wrt, "%d ; ", pid);
+  write(file, to_wrt, strlen(to_wrt));
   //event and info
   switch(event){
     case PROC_CREAT:
-        fprintf(file, "PROC_CREAT ;");
+        sprintf(to_wrt, "PROC_CREAT ;");
+        write(file, to_wrt, strlen(to_wrt));
         for(int i= 0; i<inf->arg.argc_info; i++){
-            fprintf(file, " %s", inf->arg.argv_info[i]);
+            sprintf(to_wrt, " %s", inf->arg.argv_info[i]);
+            write(file, to_wrt, strlen(to_wrt));
         }
-        fprintf(file, "\n");
+        sprintf(to_wrt, "\n");
+        write(file, to_wrt, strlen(to_wrt));
         break;
     case PROC_EXIT:
-        fprintf(file, "PROC_EXIT ; %d\n", inf->exit_code);
+        sprintf(to_wrt, "PROC_EXIT ; %d\n", inf->exit_code);
+        write(file, to_wrt, strlen(to_wrt));
         break;
     case SIGNAL_RECV:
-        fprintf(file, "SIGNAL_RECV ; %s\n", inf->signal_received);
+        sprintf(to_wrt, "SIGNAL_RECV ; %s\n", inf->signal_received);
+        write(file, to_wrt, strlen(to_wrt));
         break;
     case SIGNAL_SENT:
-        fprintf(file, "SIGNAL_SENT ; %s : %d\n", inf->sent.signal_sent, inf->sent.pid_sent);
+        sprintf(to_wrt, "SIGNAL_SENT ; %s : %d\n", inf->sent.signal_sent, inf->sent.pid_sent);
+        write(file, to_wrt, strlen(to_wrt));
         break;
     case FILE_MODF:
-        fprintf(file, "FILE_MODF ; %s : %o : %o\n", inf->perm.name_file, inf->perm.old_perms, inf->perm.new_perms);
+        sprintf(to_wrt, "FILE_MODF ; %s : %o : %o\n", inf->perm.name_file, inf->perm.old_perms, inf->perm.new_perms);
+        write(file, to_wrt, strlen(to_wrt));
         break;
     default:
         break;
@@ -65,8 +77,8 @@ int log_file(FILE* file, enum XMOD_EVENT event, const union EventLog *inf){
   return 0;
 }
 
-int log_close(FILE* file){
-    int val_close = fclose(file);
+int log_close(int file){
+    int val_close = close(file);
     if(val_close!=0){ 
         fprintf(stderr, "Not closed\n");
         return -1;
