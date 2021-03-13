@@ -2,7 +2,7 @@ CC = cc
 CFLAGS = -Wall -Werror
 PROG_NAME = xmod
 
-OBJECTS = main.o parsers.o retrievers.o utils.o log.o
+OBJECTS = main.o parsers.o retrievers.o utils.o log.o sig.o
 
 xmod: $(OBJECTS)
 	$(CC) $(CFLAGS) -o $(PROG_NAME) $(OBJECTS)

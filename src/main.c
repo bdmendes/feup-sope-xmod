@@ -9,19 +9,22 @@
 #include "parsers.h"
 #include "retrievers.h"
 #include "utils.h"
+#include "sig.h"
 
 int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
 int main(int argc, char **argv) {
-    setup_event_logging();
+    set_handler_SIGINT();
+    printf("hello");
+    /*setup_event_logging();
     EventLog event_log;
     event_log.perms.file_name = "my-file-name";
     event_log.perms.new = 0777;
     event_log.perms.old = 0333;
     log_event(FILE_MODF, &event_log);
     process(argv);
-    close_log_file();
+    close_log_file();*/
 }
 
 int process(char **argv) { // pass log too
