@@ -1,5 +1,6 @@
 #include <dirent.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <string.h>
 #include <sys/wait.h>
@@ -8,21 +9,14 @@
 #include "log.h"
 #include "parsers.h"
 #include "retrievers.h"
-#include "utils.h"
 #include "sig.h"
+#include "utils.h"
 
 int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
 int main(int argc, char **argv) {
-    setup_event_logging();
-    EventLog event_log;
-    event_log.perms.file_name = "my-file-name";
-    event_log.perms.new = 0777;
-    event_log.perms.old = 0333;
-    log_event(FILE_MODF, &event_log);
     process(argv);
-    close_log_file();
 }
 
 int process(char **argv) { // pass log too
@@ -38,8 +32,15 @@ int process(char **argv) { // pass log too
     }
 
     // Must be wrapped after log is ready
+    if (cmd.options.verbose) {
+        char *old_mode = (char *)malloc(9);
+        char *new_mode = (char *)malloc(9);
+        get_symbolic_string(file_info.octal_mode, old_mode);
+        get_symbolic_string(cmd.octal_mode, new_mode);
+        printf("mode of '%s' changed from %o (%s) to %o (%s)\n", file_info.path,
+               file_info.octal_mode, old_mode, cmd.octal_mode, new_mode);
+    }
     chmod(cmd.file_dir, cmd.octal_mode);
-    printf("Changing file permissions: %s\n", cmd.file_dir);
 
     if (cmd.options.recursive && file_info.type == DT_DIR) {
         traverse(argv, cmd.file_dir, cmd.file_idx);

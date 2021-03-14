@@ -109,6 +109,20 @@ mode_t get_octal_mode(FilePermissions *permissions) {
            permissions->other.execute * S_IXOTH;
 }
 
+void get_symbolic_string(mode_t mode, char *string) {
+    string[USER * 3 + READ] = mode & S_IRUSR ? 'r' : '-';
+    string[USER * 3 + WRITE] = mode & S_IWUSR ? 'w' : '-';
+    string[USER * 3 + EXECUTE] = mode & S_IXUSR ? 'x' : '-';
+
+    string[GROUP * 3 + READ] = mode & S_IRGRP ? 'r' : '-';
+    string[GROUP * 3 + WRITE] = mode & S_IWGRP ? 'w' : '-';
+    string[GROUP * 3 + EXECUTE] = mode & S_IXGRP ? 'x' : '-';
+
+    string[OTHER * 3 + READ] = mode & S_IROTH ? 'r' : '-';
+    string[OTHER * 3 + WRITE] = mode & S_IWOTH ? 'w' : '-';
+    string[OTHER * 3 + EXECUTE] = mode & S_IXOTH ? 'x' : '-';
+}
+
 int parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
     mode_t curr_mode;
     FileInfo file_info;

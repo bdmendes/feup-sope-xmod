@@ -11,6 +11,8 @@ enum XMOD_MODE_TYPE { SYMBOLIC_MODE, OCTAL_MODE };
 
 enum XMOD_USER_TYPE { USER, GROUP, OTHER, ALL };
 
+enum XMOD_PERMISSION { READ, WRITE, EXECUTE };
+
 struct XmodOptions {
     bool changes;
     bool verbose;
