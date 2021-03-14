@@ -121,6 +121,8 @@ void get_symbolic_string(mode_t mode, char *string) {
     string[OTHER * 3 + READ] = mode & S_IROTH ? 'r' : '-';
     string[OTHER * 3 + WRITE] = mode & S_IWOTH ? 'w' : '-';
     string[OTHER * 3 + EXECUTE] = mode & S_IXOTH ? 'x' : '-';
+
+    string[NUMBER_OF_PERM_FIELDS] = '\0';
 }
 
 int parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {

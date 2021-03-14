@@ -13,6 +13,8 @@ enum XMOD_USER_TYPE { USER, GROUP, OTHER, ALL };
 
 enum XMOD_PERMISSION { READ, WRITE, EXECUTE };
 
+#define NUMBER_OF_PERM_FIELDS 9
+
 struct XmodOptions {
     bool changes;
     bool verbose;

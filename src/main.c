@@ -33,8 +33,8 @@ int process(char **argv) { // pass log too
 
     // Must be wrapped after log is ready
     if (cmd.options.verbose) {
-        char *old_mode = (char *)malloc(9);
-        char *new_mode = (char *)malloc(9);
+        char old_mode[NUMBER_OF_PERM_FIELDS + 1];
+        char new_mode[NUMBER_OF_PERM_FIELDS + 1];
         get_symbolic_string(file_info.octal_mode, old_mode);
         get_symbolic_string(cmd.octal_mode, new_mode);
         printf("mode of '%s' changed from %o (%s) to %o (%s)\n", file_info.path,
