@@ -11,11 +11,13 @@
 #include "retrievers.h"
 #include "sig.h"
 #include "utils.h"
+#include "input_validation.h"
 
 int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
 int main(int argc, char **argv) {
+    if(is_invalid_input(argv, argc)) exit(EXIT_FAILURE);
     process(argv);
 }
 

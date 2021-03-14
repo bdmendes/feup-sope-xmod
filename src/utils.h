@@ -9,4 +9,6 @@ bool is_flag_arg(char *argument);
 
 bool is_number_arg(char *argument);
 
+bool has_permissions_flags(const char* argument);
+
 #endif
