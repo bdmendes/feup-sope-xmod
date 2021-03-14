@@ -1,2 +1,3 @@
-0.112000 ; 126207 ; FILE_MODF ; ~ : 666 : 666
-0.153000 ; 126207 ; PROC_CREAT ; ./xmod
+0.028000 ; 79301 ; FILE_MODF ; my-file-name : 333 : 777
+0.272000 ; 79302 ; FILE_MODF ; my-file-name : 333 : 777
+-0.025000 ; 79303 ; FILE_MODF ; my-file-name : 333 : 777

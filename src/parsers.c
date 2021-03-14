@@ -129,8 +129,7 @@ int parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
 }
 
 static int parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand) {
-    char *buf;
-    mode_t mode = strtoul(mode_str, &buf, 8) & 0777;
+    mode_t mode = strtoul(mode_str, NULL, 8) & 0777;
     xmodCommand->octal_mode = mode;
     return 0;
 }

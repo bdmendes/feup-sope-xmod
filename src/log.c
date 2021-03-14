@@ -9,19 +9,45 @@
 
 static clock_t time_init;
 static int log_fd = -1;
+static bool make_logs = true;
 
 int setup_event_logging() {
-    char *dir = getenv("LOG_FILENAME");
-    if (dir == NULL) {
-        fprintf(stderr, "LOG_FILENAME environment variable not found\n");
+    char *log_file_path = getenv(LOG_FILE_PATH_ENV);
+    if (log_file_path == NULL) {
+        fprintf(stderr, "%s environment variable not found\n",
+                LOG_FILE_PATH_ENV);
+        make_logs = false;
         return -1;
     }
-    int fd = open(dir, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
+
+    int fd;
+    bool is_top_process = getpid() == getpgrp();
+    fd = open(log_file_path,
+              O_WRONLY | (is_top_process ? O_CREAT | O_TRUNC : O_APPEND),
+              S_IWUSR);
     if (fd == -1) {
         perror("log file open");
         return -1;
     }
-    time_init = clock();
+
+    if (!is_top_process) {
+        char *saved_time_init = getenv(LOG_PARENT_INITIAL_TIME_ENV);
+        if (saved_time_init == NULL) {
+            fprintf(stderr, "%s environment variable not found\n",
+                    LOG_PARENT_INITIAL_TIME_ENV);
+            if (close(fd) != 0) {
+                perror("could not close file");
+            }
+            return -1;
+        }
+        time_init = strtoul(saved_time_init, NULL, 10);
+        printf("GETTING SAVED TIME INIT: %lu\n", time_init);
+        fflush(stdout);
+    } else {
+        time_init = clock();
+        printf("GETTING TIME INFO FOR FIRST TIME: %lu\n", time_init);
+    }
+
     log_fd = fd;
     return 0;
 }
@@ -33,7 +59,8 @@ int log_event(XMOD_EVENT event, const EventLog *inf) {
     // time
     clock_t time = clock();
     double time_passed_mili_secs =
-        (double)(time - time_init) / CLOCKS_PER_SEC * 1000.0;
+        (double)(time - time_init) / CLOCKS_PER_SEC *
+        1000.0; // calcs not needed after proper use of wall time
     curr_buf += sprintf(curr_buf, "%f ; ", time_passed_mili_secs);
 
     // pid
@@ -79,4 +106,12 @@ int close_log_file() {
         return -1;
     }
     return 0;
+}
+
+clock_t get_initial_instant() {
+    return time_init;
+}
+
+inline bool are_logs_enabled() {
+    return make_logs;
 }

@@ -1,6 +1,7 @@
 #include <dirent.h>
 #include <stdio.h>
 
+#include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -8,14 +9,16 @@
 #include "log.h"
 #include "parsers.h"
 #include "retrievers.h"
-#include "utils.h"
 #include "sig.h"
+#include "utils.h"
 
 int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
 int main(int argc, char **argv) {
-    setup_event_logging();
+    if (setup_event_logging() != 0) {
+        exit(EXIT_FAILURE);
+    }
     EventLog event_log;
     event_log.perms.file_name = "my-file-name";
     event_log.perms.new = 0777;
@@ -48,7 +51,6 @@ int process(char **argv) { // pass log too
 }
 
 int traverse(char *argv[], char dir_path[], unsigned file_idx) {
-    printf("Transversing...\n");
     DIR *dp = opendir(dir_path);
     if (dp == NULL) {
         perror("could not open directory");
@@ -60,15 +62,19 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx) {
             char new_path[PATH_MAX];
             sprintf(new_path, "%s/%s", dir_path, dirent->d_name);
             argv[file_idx] = new_path;
+
             FileInfo file_info;
             if (retrieve_file_info(&file_info, new_path) != 0) {
                 perror("could not retrieve file info");
-                return -1;
+                continue;
             }
 
             if (file_info.type == DT_DIR) {
                 pid_t id = fork();
                 if (id == 0) {
+                    char time_str[PATH_MAX];
+                    sprintf(time_str, "%lu", get_initial_instant());
+                    setenv(LOG_PARENT_INITIAL_TIME_ENV, time_str, 0);
                     execvp(argv[0], argv);
                 } else if (id != -1) {
                     wait(NULL);
@@ -88,9 +94,8 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx) {
     }
     return 0;
 }
-/* Tests */
 
-int test_conversion_of_symbolic_mode_to_octal_mode();
+/* Tests */
 
 int test_conversion_of_symbolic_mode_to_octal_mode() {
     FilePermissions old;
