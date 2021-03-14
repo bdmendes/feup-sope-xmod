@@ -6,11 +6,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "log.h"
-#include "parsers.h"
-#include "retrievers.h"
-#include "sig.h"
-#include "utils.h"
+#include "log/log.h"
+#include "parse/parsers.h"
+#include "retrieve/retrievers.h"
+#include "signal/sig.h"
+#include "util/utils.h"
 
 int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
@@ -94,37 +94,3 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx) {
     }
     return 0;
 }
-
-/* Tests */
-
-int test_conversion_of_symbolic_mode_to_octal_mode() {
-    FilePermissions old;
-    old.user.read = false;
-    old.user.write = true; // 3
-    old.user.execute = true;
-
-    old.group.read = false;
-    old.group.write = true; // 2
-    old.group.execute = false;
-
-    old.other.read = true;
-    old.other.write = false; // 5
-    old.other.execute = true;
-
-    update_permissions("-w", &old);
-
-    printf("%o\n", get_octal_mode(&old));
-
-    return 0;
-}
-/*
-void test_signal(){
-    setup_event_logging();
-    set_file("nckdjsnc");
-    set_handler_SIGINT();
-    while(get_running()){
-        printf("hello\n");
-        sleep(1);
-    }
-    printf("heillo");
-}*/

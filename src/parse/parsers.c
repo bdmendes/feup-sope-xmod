@@ -1,14 +1,13 @@
 #include "parsers.h"
-#include "retrievers.h"
-#include "utils.h"
+#include "../retrieve/retrievers.h"
+#include "../util/utils.h"
+#include <string.h>
 
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "xmod.h"
-
-static void assign_permissions(XmodPermissionsTypes *permissions,
+static void assign_permissions(PermissionTypes *permissions,
                                mode_t octal_mode) {
     permissions->read = octal_mode & 04;
     permissions->write = octal_mode & 02;
@@ -22,15 +21,15 @@ static void assemble_permissions(mode_t octal_mode,
     assign_permissions(&file_permissions->user, (octal_mode & 0700) >> 6);
 }
 
-static void add_permissions(XmodPermissionsTypes *old_permissions,
-                            XmodPermissionsTypes *changes) {
-    old_permissions->read |= changes->read;
-    old_permissions->write |= changes->write;
-    old_permissions->execute |= changes->execute;
+static void add_permissions(PermissionTypes *curr_permissions,
+                            PermissionTypes *changes) {
+    curr_permissions->read |= changes->read;
+    curr_permissions->write |= changes->write;
+    curr_permissions->execute |= changes->execute;
 }
 
-static void remove_permissions(XmodPermissionsTypes *curr_permissions,
-                               const struct XmodPermissionsTypes *changes) {
+static void remove_permissions(PermissionTypes *curr_permissions,
+                               const PermissionTypes *changes) {
     if (changes->read)
         curr_permissions->read = false;
     if (changes->write)
@@ -39,18 +38,18 @@ static void remove_permissions(XmodPermissionsTypes *curr_permissions,
         curr_permissions->execute = false;
 }
 
-static int update_curr_permissions(XmodPermissionsTypes *old_permissions,
-                                   XmodPermissionsTypes *new_permissions,
+static int update_curr_permissions(PermissionTypes *curr_permissions,
+                                   PermissionTypes *changes,
                                    const char operator) {
     switch (operator) {
         case '+':
-            add_permissions(old_permissions, new_permissions);
+            add_permissions(curr_permissions, changes);
             break;
         case '-':
-            remove_permissions(old_permissions, new_permissions);
+            remove_permissions(curr_permissions, changes);
             break;
         case '=':
-            *old_permissions = *new_permissions;
+            *curr_permissions = *changes;
             break;
         default:
             return 1; // invalid input
@@ -58,40 +57,40 @@ static int update_curr_permissions(XmodPermissionsTypes *old_permissions,
     return 0;
 }
 
-int update_permissions(const char input_symbolic_mode[],
+int update_permissions(const char symbolic_changes[],
                        FilePermissions *permissions) {
     int operator_index =
-        (input_symbolic_mode[1] == '+' || input_symbolic_mode[1] == '-' ||
-         input_symbolic_mode[1] == '=')
+        (symbolic_changes[1] == '+' || symbolic_changes[1] == '-' ||
+         symbolic_changes[1] == '=')
             ? 1
             : 0;
 
-    XmodPermissionsTypes input_permissions;
-    input_permissions.read = strchr(input_symbolic_mode, 'r') != NULL;
-    input_permissions.write = strchr(input_symbolic_mode, 'w') != NULL;
-    input_permissions.execute = strchr(input_symbolic_mode, 'x') != NULL;
+    PermissionTypes input_permissions;
+    input_permissions.read = strchr(symbolic_changes, 'r') != NULL;
+    input_permissions.write = strchr(symbolic_changes, 'w') != NULL;
+    input_permissions.execute = strchr(symbolic_changes, 'x') != NULL;
 
-    switch (input_symbolic_mode[0]) {
+    switch (symbolic_changes[0]) {
         case 'u':
             update_curr_permissions(&permissions->user, &input_permissions,
-                                    input_symbolic_mode[operator_index]);
+                                    symbolic_changes[operator_index]);
             break;
         case 'g':
             update_curr_permissions(&permissions->group, &input_permissions,
-                                    input_symbolic_mode[operator_index]);
+                                    symbolic_changes[operator_index]);
             break;
         case 'o':
             update_curr_permissions(&permissions->other, &input_permissions,
-                                    input_symbolic_mode[operator_index]);
+                                    symbolic_changes[operator_index]);
             break;
         case 'a':
         default:
             update_curr_permissions(&permissions->user, &input_permissions,
-                                    input_symbolic_mode[operator_index]);
+                                    symbolic_changes[operator_index]);
             update_curr_permissions(&permissions->group, &input_permissions,
-                                    input_symbolic_mode[operator_index]);
+                                    symbolic_changes[operator_index]);
             update_curr_permissions(&permissions->other, &input_permissions,
-                                    input_symbolic_mode[operator_index]);
+                                    symbolic_changes[operator_index]);
             break;
     }
     return 0;

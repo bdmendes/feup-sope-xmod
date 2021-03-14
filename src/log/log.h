@@ -2,12 +2,13 @@
 #define LOG_H
 
 #include <sys/types.h>
+#include <dirent.h>
 #include <stdbool.h>
 
 #define LOG_FILE_PATH_ENV "LOG_FILENAME"
 #define LOG_PARENT_INITIAL_TIME_ENV "LOG_XMOD_INITIAL_INSTANT"
 
-typedef union EventLog{
+typedef union {
     struct {
         int argc_info;
         char **argv_info;
