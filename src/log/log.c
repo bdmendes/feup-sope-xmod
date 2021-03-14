@@ -23,7 +23,7 @@ int setup_event_logging() {
     bool is_top_process = getpid() == getpgrp();
     fd = open(log_file_path,
               O_WRONLY | (is_top_process ? O_CREAT | O_TRUNC : O_APPEND),
-              S_IWUSR);
+              S_IRWXU);
     if (fd == -1) {
         perror("log file open");
         return -1;
