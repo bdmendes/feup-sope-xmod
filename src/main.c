@@ -11,6 +11,7 @@
 #include "retrievers.h"
 #include "sig.h"
 #include "utils.h"
+#include "verbose.h"
 
 int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
@@ -22,29 +23,29 @@ int main(int argc, char **argv) {
 int process(char **argv) { // pass log too
     XmodCommand cmd;
     parse(argv, &cmd);
-    printf("file_name: %s, mode: %o\n", cmd.file_dir, cmd.octal_mode);
 
     FileInfo file_info;
 
     if (retrieve_file_info(&file_info, cmd.file_dir) != 0) {
-        perror("could not retrieve file info");
-        return -1;
+        perror("chmod: cannot access file");
+        file_info.octal_mode = 0000;
+        file_info.path = cmd.file_dir;
+        cmd.octal_mode = 0000;
     }
 
     // Must be wrapped after log is ready
-    if (cmd.options.verbose) {
-        char old_mode[NUMBER_OF_PERM_FIELDS + 1];
-        char new_mode[NUMBER_OF_PERM_FIELDS + 1];
-        get_symbolic_string(file_info.octal_mode, old_mode);
-        get_symbolic_string(cmd.octal_mode, new_mode);
-        printf("mode of '%s' changed from %o (%s) to %o (%s)\n", file_info.path,
-               file_info.octal_mode, old_mode, cmd.octal_mode, new_mode);
+    int success = chmod(cmd.file_dir, cmd.octal_mode);
+    bool changed = cmd.octal_mode != file_info.octal_mode;
+
+    if (cmd.options.verbose || (cmd.options.changes && changed)) {
+        print_verbose_message(file_info.path, file_info.octal_mode,
+                              cmd.octal_mode, changed, success);
     }
-    chmod(cmd.file_dir, cmd.octal_mode);
 
     if (cmd.options.recursive && file_info.type == DT_DIR) {
         traverse(argv, cmd.file_dir, cmd.file_idx);
     }
+
     return 0;
 }
 
