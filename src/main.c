@@ -28,16 +28,14 @@ int process(char **argv) { // pass log too
     FileInfo file_info;
     int success = 0;
 
-    if (retrieve_file_info(&file_info, cmd.file_dir) != 0) {
+    if (retrieve_file_info(&file_info, cmd.file_dir) == 0) {
+        success = chmod(cmd.file_dir, cmd.octal_mode);
+    } else {
         fprintf(stderr, "chmod: cannot access '%s': %s\n", cmd.file_dir,
                 strerror(errno));
         success = -1;
     }
 
-    // Must be wrapped after log is ready
-    if (success == 0) {
-        success = chmod(cmd.file_dir, cmd.octal_mode);
-    }
     bool changed = cmd.octal_mode != file_info.octal_mode;
 
     if (cmd.options.verbose || (cmd.options.changes && changed)) {
