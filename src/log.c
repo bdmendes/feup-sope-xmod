@@ -84,8 +84,8 @@ int close_log_file() {
 double get_milisecs(){
     struct timeval tim;
     gettimeofday(&tim, 0);
-    long double sec = tim.tv_sec;
-    long double microsec = tim.tv_usec;
+    long sec = tim.tv_sec;
+    long microsec = tim.tv_usec;
     long double mili_secs = sec * 1000.0 + microsec/1000.0;
     return mili_secs;
 }
