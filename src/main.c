@@ -52,7 +52,6 @@ int process(char **argv) { // pass log too
 }
 
 int traverse(char *argv[], char dir_path[], unsigned file_idx) {
-    printf("Transversing...\n");
     DIR *dp = opendir(dir_path);
     if (dp == NULL) {
         perror("could not open directory");
