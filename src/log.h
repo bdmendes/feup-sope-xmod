@@ -29,6 +29,6 @@ int setup_event_logging();
 
 int close_log_file();
 
-double get_milisecs();
+long double get_milisecs();
 
 #endif
