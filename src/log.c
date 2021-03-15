@@ -81,7 +81,7 @@ int close_log_file() {
     return 0;
 }
 
-double get_milisecs(){
+long double get_milisecs(){
     struct timeval tim;
     gettimeofday(&tim, 0);
     long sec = tim.tv_sec;
