@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -27,7 +28,8 @@ int process(char **argv) { // pass log too
     FileInfo file_info;
 
     if (retrieve_file_info(&file_info, cmd.file_dir) != 0) {
-        perror("chmod: cannot access file");
+        fprintf(stderr, "chmod: cannot access '%s': %s\n", cmd.file_dir,
+                strerror(errno));
         file_info.octal_mode = 0000;
         file_info.path = cmd.file_dir;
         cmd.octal_mode = 0000;
