@@ -26,21 +26,22 @@ int process(char **argv) { // pass log too
     parse(argv, &cmd);
 
     FileInfo file_info;
+    int success = 0;
 
     if (retrieve_file_info(&file_info, cmd.file_dir) != 0) {
         fprintf(stderr, "chmod: cannot access '%s': %s\n", cmd.file_dir,
                 strerror(errno));
-        file_info.octal_mode = 0000;
-        file_info.path = cmd.file_dir;
-        cmd.octal_mode = 0000;
+        success = -1;
     }
 
     // Must be wrapped after log is ready
-    int success = chmod(cmd.file_dir, cmd.octal_mode);
+    if (success == 0) {
+        success = chmod(cmd.file_dir, cmd.octal_mode);
+    }
     bool changed = cmd.octal_mode != file_info.octal_mode;
 
     if (cmd.options.verbose || (cmd.options.changes && changed)) {
-        print_verbose_message(file_info.path, file_info.octal_mode,
+        print_verbose_message(cmd.file_dir, file_info.octal_mode,
                               cmd.octal_mode, changed, success);
     }
 
