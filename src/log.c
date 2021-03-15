@@ -5,9 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 #include <unistd.h>
 
-static clock_t time_init;
+static long double time_init;
 static int log_fd = -1;
 
 int setup_event_logging() {
@@ -21,7 +22,7 @@ int setup_event_logging() {
         perror("log file open");
         return -1;
     }
-    time_init = clock();
+    time_init = get_milisecs();
     log_fd = fd;
     return 0;
 }
@@ -31,10 +32,9 @@ int log_event(XMOD_EVENT event, const EventLog *inf) {
     char *curr_buf = buf;
 
     // time
-    clock_t time = clock();
-    double time_passed_mili_secs =
-        (double)(time - time_init) / CLOCKS_PER_SEC * 1000.0;
-    curr_buf += sprintf(curr_buf, "%f ; ", time_passed_mili_secs);
+    double long time = get_milisecs();
+    double long time_passed_mili_secs = time - time_init;
+    curr_buf += sprintf(curr_buf, "%Lf ; ", time_passed_mili_secs);
 
     // pid
     pid_t pid = getpid();
@@ -79,4 +79,13 @@ int close_log_file() {
         return -1;
     }
     return 0;
+}
+
+long double get_milisecs(){
+    struct timeval tim;
+    gettimeofday(&tim, 0);
+    long sec = tim.tv_sec;
+    long microsec = tim.tv_usec;
+    long double mili_secs = sec * 1000.0 + microsec/1000.0;
+    return mili_secs;
 }
