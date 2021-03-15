@@ -14,37 +14,47 @@ static unsigned int nftot = 0;
 static unsigned int nfmod = 0;
 static bool running = true;
 
-void handler_SIGINT(int signo){
+void handler(int signo){
 	EventLog sig;
-	sig.signal_received = "SIGINT";
-	log_event(SIGNAL_RECV, &sig);
-    printf("\n%d ; %s ; %d ; %d \n",  getpid(), file_dir, nftot, nfmod);
-	printf("Do you wish to continue? [Y/N]\n");
-	char buf[100];
-    scanf("%c", buf);
-	if(buf[0] != 'y' && buf[0] != 'Y'){
-		running = false;
+	if(signo == SIGINT){
+		sig.signal_received = "SIGINT";
+		log_event(SIGNAL_RECV, &sig);
+		printf("\n%d ; %s ; %d ; %d \n",  getpid(), file_dir, nftot, nfmod);
+		printf("Do you wish to continue? [Y/N]\n");
+		char buf[100];
+		scanf("%c", buf);
+		if(buf[0] != 'y' && buf[0] != 'Y'){
+			running = false;
+		}
+		while ( getchar() != '\n' );
 	}
-	while ( getchar() != '\n' );
+	else{
+		sig.signal_received = strsignal(signo);
+		log_event(SIGNAL_RECV, &sig);
+	}
 
 }
 
-int set_handler_SIGINT(){
-    struct sigaction new, old;
-	sigset_t smask;	
-	
-	if (sigemptyset(&smask)==-1){	// block no signal
-		perror ("sigsetfunctions");
-		return -1;
-	}
-		
-	new.sa_handler = handler_SIGINT;
-	new.sa_mask = smask;
-	new.sa_flags = 0;	// usually works
+int set_handler(){
+	for(int i = 1; i <= 64; i++){
+		if(i!=SIGKILL && i!=SIGSTOP){
+			struct sigaction new, old;
+			sigset_t smask;	
+			
+			if (sigemptyset(&smask)==-1){
+				perror ("sigsetfunctions");
+				if(i==SIGINT) return -1;  //it will be really bad if we caan't treat the 'main' signal
+			}
+				
+			new.sa_handler = handler;
+			new.sa_mask = smask;
+			new.sa_flags = 0;
 
-	if(sigaction(SIGINT, &new, &old) == -1){
-		perror ("sigaction");
-		return -1;
+			if(sigaction(i, &new, &old) == -1){
+				perror ("sigaction");
+				if(i==SIGINT) return -1;  //it will be really bad if we caan't treat the 'main' signal
+			}
+		}
 	}
 
 	nftot = 0;

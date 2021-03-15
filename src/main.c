@@ -116,7 +116,7 @@ int test_conversion_of_symbolic_mode_to_octal_mode() {
 void test_signal(){
     setup_event_logging();
     set_file("nckdjsnc");
-    set_handler_SIGINT();
+    if (set_handler()!= 0) printf("problems\n");
     while(get_running()){
         printf("hello\n");
         sleep(1);

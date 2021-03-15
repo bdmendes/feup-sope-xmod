@@ -2,9 +2,9 @@
 #define SIG_H
 #include <stdbool.h>
 
-int set_handler_SIGINT();
+int set_handler();
 
-void handler_SIGINT(int signo);
+void handler(int signo);
 
 void set_file(char* file);
 
