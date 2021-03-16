@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void assign_permissions(PermissionTypes *permissions,
-                               mode_t octal_mode) {
+static void assemble_permissions_user(PermissionTypes *permissions,
+                                      mode_t octal_mode) {
     permissions->read = octal_mode & 04;
     permissions->write = octal_mode & 02;
     permissions->execute = octal_mode & 01;
@@ -16,9 +16,11 @@ static void assign_permissions(PermissionTypes *permissions,
 
 static void assemble_permissions(mode_t octal_mode,
                                  FilePermissions *file_permissions) {
-    assign_permissions(&file_permissions->other, octal_mode & 0007);
-    assign_permissions(&file_permissions->group, (octal_mode & 0070) >> 3);
-    assign_permissions(&file_permissions->user, (octal_mode & 0700) >> 6);
+    assemble_permissions_user(&file_permissions->other, octal_mode & 0007);
+    assemble_permissions_user(&file_permissions->group,
+                              (octal_mode & 0070) >> 3);
+    assemble_permissions_user(&file_permissions->owner,
+                              (octal_mode & 0700) >> 6);
 }
 
 static void add_permissions(PermissionTypes *curr_permissions,
@@ -38,9 +40,9 @@ static void remove_permissions(PermissionTypes *curr_permissions,
         curr_permissions->execute = false;
 }
 
-static int update_curr_permissions(PermissionTypes *curr_permissions,
-                                   PermissionTypes *changes,
-                                   const char operator) {
+static void update_curr_permissions(PermissionTypes *curr_permissions,
+                                    PermissionTypes *changes,
+                                    const char operator) {
     switch (operator) {
         case '+':
             add_permissions(curr_permissions, changes);
@@ -51,19 +53,12 @@ static int update_curr_permissions(PermissionTypes *curr_permissions,
         case '=':
             *curr_permissions = *changes;
             break;
-        default:
-            return 1; // invalid input
     }
-    return 0;
 }
 
-int update_permissions(const char symbolic_changes[],
-                       FilePermissions *permissions) {
-    int operator_index =
-        (symbolic_changes[1] == '+' || symbolic_changes[1] == '-' ||
-         symbolic_changes[1] == '=')
-            ? 1
-            : 0;
+void update_permissions(const char symbolic_changes[],
+                        FilePermissions *permissions) {
+    int operator_index = is_permission_operator(symbolic_changes[0]) ? 0 : 1;
 
     PermissionTypes input_permissions;
     input_permissions.read = strchr(symbolic_changes, 'r') != NULL;
@@ -72,7 +67,7 @@ int update_permissions(const char symbolic_changes[],
 
     switch (symbolic_changes[0]) {
         case 'u':
-            update_curr_permissions(&permissions->user, &input_permissions,
+            update_curr_permissions(&permissions->owner, &input_permissions,
                                     symbolic_changes[operator_index]);
             break;
         case 'g':
@@ -85,7 +80,7 @@ int update_permissions(const char symbolic_changes[],
             break;
         case 'a':
         default:
-            update_curr_permissions(&permissions->user, &input_permissions,
+            update_curr_permissions(&permissions->owner, &input_permissions,
                                     symbolic_changes[operator_index]);
             update_curr_permissions(&permissions->group, &input_permissions,
                                     symbolic_changes[operator_index]);
@@ -93,13 +88,12 @@ int update_permissions(const char symbolic_changes[],
                                     symbolic_changes[operator_index]);
             break;
     }
-    return 0;
 }
 
 mode_t get_octal_mode(FilePermissions *permissions) {
-    return permissions->user.read * S_IRUSR |
-           permissions->user.write * S_IWUSR |
-           permissions->user.execute * S_IXUSR |
+    return permissions->owner.read * S_IRUSR |
+           permissions->owner.write * S_IWUSR |
+           permissions->owner.execute * S_IXUSR |
            permissions->group.read * S_IRGRP |
            permissions->group.write * S_IWGRP |
            permissions->group.execute * S_IXGRP |
@@ -108,7 +102,7 @@ mode_t get_octal_mode(FilePermissions *permissions) {
            permissions->other.execute * S_IXOTH;
 }
 
-int parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
+void parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
     mode_t curr_mode;
     FileInfo file_info;
     retrieve_file_info(&file_info, xmodCommand->file_dir);
@@ -124,13 +118,11 @@ int parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
     }
 
     xmodCommand->octal_mode = get_octal_mode(&curr_mode_permissions);
-    return 0;
 }
 
-static int parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand) {
+static void parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand) {
     mode_t mode = strtoul(mode_str, NULL, 8) & 0777;
     xmodCommand->octal_mode = mode;
-    return 0;
 }
 
 static void parse_options(const char *options, XmodCommand *xmodCommand) {
@@ -140,7 +132,7 @@ static void parse_options(const char *options, XmodCommand *xmodCommand) {
         strchr(options, 'c') != NULL && !xmodCommand->options.verbose;
 }
 
-int parse(char **argv, XmodCommand *xmodCommand) {
+void parse(char **argv, XmodCommand *xmodCommand) {
     int mode_index = 1;
 
     memset(&xmodCommand->options, 0, sizeof(xmodCommand->options));
@@ -148,7 +140,6 @@ int parse(char **argv, XmodCommand *xmodCommand) {
         parse_options(argv[mode_index++], xmodCommand);
     }
 
-    // should pass argc to this function to check here
     strcpy(xmodCommand->file_dir, argv[mode_index + 1]);
 
     if (is_number_arg(argv[mode_index])) {
@@ -158,6 +149,4 @@ int parse(char **argv, XmodCommand *xmodCommand) {
     }
 
     xmodCommand->file_idx = mode_index + 1;
-
-    return 0;
 }

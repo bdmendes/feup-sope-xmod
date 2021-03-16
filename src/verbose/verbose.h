@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
-enum XMOD_USER_TYPE { USER, GROUP, OTHER };
+enum XMOD_USER_TYPE { OWNER, GROUP, OTHER };
 
 enum XMOD_PERMISSION { READ, WRITE, EXECUTE };
 

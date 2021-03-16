@@ -10,6 +10,14 @@
         "utils.h": "c",
         "*.tcc": "c",
         "cmath": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "exception": "c",
+        "optional": "c",
+        "memory": "c",
+        "istream": "c",
+        "mutex": "c",
+        "new": "c",
+        "ostream": "c",
+        "system_error": "c"
     },
 }
