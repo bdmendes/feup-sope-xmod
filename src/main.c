@@ -73,7 +73,7 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx) {
                 pid_t id = fork();
                 if (id == 0) {
                     char time_str[PATH_MAX];
-                    sprintf(time_str, "%lu", get_initial_instant());
+                    sprintf(time_str, "%Lf", get_initial_instant());
                     setenv(LOG_PARENT_INITIAL_TIME_ENV, time_str, 0);
                     execvp(argv[0], argv);
                 } else if (id != -1) {

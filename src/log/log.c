@@ -3,10 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 
-static clock_t time_init;
+static long double time_init;
 static int log_fd = -1;
 static bool make_logs = true;
 
@@ -39,14 +40,15 @@ int setup_event_logging() {
             }
             return -1;
         }
-        time_init = strtoul(saved_time_init, NULL, 10);
-        printf("GETTING SAVED TIME INIT: %lu\n", time_init);
+        time_init = strtold(saved_time_init, NULL);
+        printf("GETTING SAVED TIME INIT: %Lf\n", time_init);
         fflush(stdout);
     } else {
-        time_init = clock();
-        printf("GETTING TIME INFO FOR FIRST TIME: %lu\n", time_init);
+        time_init = get_milisecs();
+        printf("GETTING TIME INFO FOR FIRST TIME: %Lf\n", time_init);
     }
 
+    time_init = get_milisecs();
     log_fd = fd;
     return 0;
 }
@@ -56,11 +58,9 @@ int log_event(XMOD_EVENT event, const EventLog *inf) {
     char *curr_buf = buf;
 
     // time
-    clock_t time = clock();
-    double time_passed_mili_secs =
-        (double)(time - time_init) / CLOCKS_PER_SEC *
-        1000.0; // calcs not needed after proper use of wall time
-    curr_buf += sprintf(curr_buf, "%f ; ", time_passed_mili_secs);
+    double long time = get_milisecs();
+    double long time_passed_mili_secs = time - time_init;
+    curr_buf += sprintf(curr_buf, "%Lf ; ", time_passed_mili_secs);
 
     // pid
     pid_t pid = getpid();
@@ -107,10 +107,19 @@ int close_log_file() {
     return 0;
 }
 
-clock_t get_initial_instant() {
+long double get_initial_instant() {
     return time_init;
 }
 
 inline bool are_logs_enabled() {
     return make_logs;
+}
+
+long double get_milisecs() {
+    struct timeval tim;
+    gettimeofday(&tim, 0);
+    long sec = tim.tv_sec;
+    long microsec = tim.tv_usec;
+    long double mili_secs = sec * 1000.0 + microsec / 1000.0;
+    return mili_secs;
 }
