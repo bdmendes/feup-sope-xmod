@@ -1,3 +1,7 @@
+#ifndef NSIG
+#define NSIG 65
+#endif
+
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -38,7 +42,8 @@ void handler(int signo){
 int set_handler(){
 	struct sigaction new, old;
 	sigset_t smask;	
-	for(int i = 1; i <= 64; i++){
+	for(int i = 1; i < NSIG; i++){
+		printf("%d\n", i);
 		if(i!=SIGKILL && i!=SIGSTOP){
 			
 			if (sigemptyset(&smask)==-1){
