@@ -54,13 +54,9 @@ int setup_event_logging() {
             return -1;
         } else {
             time_init = strtold(saved_time_init, NULL);
-            printf("GETTING SAVED TIME INIT: %Lf\n", time_init);
-            fflush(stdout);
         }
     } else {
         time_init = get_milisecs();
-        printf("GETTING TIME INFO FOR FIRST TIME: %Lf\n", time_init);
-        fflush(stdout);
     }
 
     make_logs = true;
@@ -103,9 +99,9 @@ int log_event(XMOD_EVENT event, const EventLog *inf) {
                                 inf->sent.signal_sent, inf->sent.pid_sent);
             break;
         case FILE_MODF:
-            curr_buf +=
-                sprintf(curr_buf, "FILE_MODF ; %s : %o : %o\n",
-                        inf->perms.file_name, inf->perms.old, inf->perms.new);
+            curr_buf += sprintf(curr_buf, "FILE_MODF ; %s : %o : %o\n",
+                                inf->perms.file_name, inf->perms.old_perms,
+                                inf->perms.new_perms);
             break;
         default:
             return -1;

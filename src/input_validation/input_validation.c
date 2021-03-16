@@ -7,7 +7,7 @@
 #include <string.h>
 
 static bool is_invalid_octal_number(const char *octal_number) {
-    if (strtoul(octal_number, NULL, 8) > 777)
+    if (strtoul(octal_number, NULL, 8) > 0777)
         return true;
 
     for (int i = strlen(octal_number) - 1; i >= 0; --i)
@@ -72,6 +72,7 @@ bool is_invalid_input(char **argv, int argc) {
         return true;
     }
 
+    // Check for invalid number of arguments
     if (argc > mode_index + 2) {
         printf("xmod: too many arguments: multiple file paths are not "
                "supported\n");

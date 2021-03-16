@@ -1,6 +1,12 @@
 # Main executable
 xmod
 
+# Log file
+./log*
+
+# Test directory
+test_dir/
+
 # Prerequisites
 *.d
 
@@ -33,10 +39,7 @@ xmod
 
 # Executables
 *.exe
-*.out
-*.app
-*.i*86
-*.x86_64
+*.outfprintf(stderr, )
 *.hex
 
 # Debug files

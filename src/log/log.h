@@ -21,8 +21,8 @@ typedef union {
     } sent;
     struct {
         char *file_name;
-        mode_t old;
-        mode_t new;
+        mode_t old_perms;
+        mode_t new_perms;
     } perms;
 } EventLog;
 

@@ -50,7 +50,9 @@ int process(char *argv[]) {
     }
 
     if (success == 0 && cmd.options.recursive && file_info.type == DT_DIR) {
-        traverse(argv, cmd.file_dir, cmd.file_idx);
+        if (traverse(argv, cmd.file_dir, cmd.file_idx) != 0) {
+            return -1;
+        }
     }
 
     return 0;
