@@ -1,5 +1,6 @@
 #include "input_validation.h"
 #include "utils.h"
+#include "retrievers.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -69,6 +70,16 @@ bool is_invalid_input(char** argv, int argc){
         return true;
     }
     free(mode_to_be_modified);
+
+    if(argc > 3){
+        printf("xmod: too many arguments\n");
+        return true;
+    }
+    mode_t file_mode;
+    if(retrieve_file_mode(argv[2], &file_mode)){
+        printf("xmod: cannot access %s: No such file or directory\n", argv[2]);
+        return true;
+    }
 
     return false;
 }

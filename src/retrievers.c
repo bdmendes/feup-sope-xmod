@@ -5,8 +5,6 @@
 static void assemble_file_info(FileInfo *file_info, const mode_t mode,
                                const char *path);
 
-static int retrieve_file_mode(const char *path_name, mode_t *file_mode);
-
 int retrieve_file_info(FileInfo *file_info, char *file_path) {
     mode_t mode = 0;
     if (retrieve_file_mode(file_path, &mode) != 0)
@@ -38,10 +36,9 @@ static void assemble_file_info(FileInfo *file_info, const mode_t mode,
         file_info->type = DT_UNKNOWN;
 }
 
-static int retrieve_file_mode(const char *path_name, mode_t *file_mode) {
+int retrieve_file_mode(const char *path_name, mode_t *file_mode) {
     struct stat sb;
     if (stat(path_name, &sb) < 0) {
-        perror("stat");
         return 1;
     }
     *file_mode = sb.st_mode;
