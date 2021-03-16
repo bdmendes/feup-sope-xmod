@@ -67,7 +67,7 @@ bool is_invalid_input(char **argv, int argc) {
 
     // Check for valid mode
     char mode_str[strlen(argv[mode_index])];
-    snprintf(mode_str, sizeof(mode_str), argv[mode_index]);
+    snprintf(mode_str, sizeof(mode_str), "%s", argv[mode_index]);
 
     if (is_number_arg(mode_str) ? is_invalid_octal_number(mode_str)
                                 : is_invalid_symbolic_mode(mode_str)) {

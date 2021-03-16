@@ -141,7 +141,7 @@ void parse(char **argv, XmodCommand *xmodCommand) {
         parse_options(argv[mode_index++], xmodCommand);
     }
 
-    snprintf(xmodCommand->file_dir, sizeof(xmodCommand->file_dir),
+    snprintf(xmodCommand->file_dir, sizeof(xmodCommand->file_dir), "%s",
              argv[mode_index + 1]);
     strip_trailing_slashes(xmodCommand->file_dir);
 
