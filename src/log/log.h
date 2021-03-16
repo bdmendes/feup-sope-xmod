@@ -1,5 +1,5 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef SRC_LOG_LOG_H_
+#define SRC_LOG_LOG_H_
 
 #include <dirent.h>
 #include <stdbool.h>
@@ -42,4 +42,4 @@ int close_log_file();
 
 long double get_initial_instant();
 
-#endif
+#endif  // SRC_LOG_LOG_H_

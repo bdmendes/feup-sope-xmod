@@ -2,8 +2,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -69,7 +67,8 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
     while ((dirent = readdir(dp)) != NULL) {
         if (!is_ref_path(dirent->d_name)) {
             char new_path[PATH_MAX];
-            sprintf(new_path, "%s/%s", dir_path, dirent->d_name);
+            snprintf(new_path, sizeof(new_path), "%s/%s", dir_path,
+                     dirent->d_name);
             argv[file_idx] = new_path;
 
             FileInfo file_info;
@@ -82,7 +81,8 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
                 pid_t id = fork();
                 if (id == 0) {
                     char time_str[PATH_MAX];
-                    sprintf(time_str, "%Lf", get_initial_instant());
+                    snprintf(time_str, sizeof(time_str), "%Lf",
+                             get_initial_instant());
                     setenv(LOG_PARENT_INITIAL_TIME_ENV, time_str, 1);
                     execvp(argv[0], argv);
                 } else if (id != -1) {

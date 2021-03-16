@@ -1,4 +1,4 @@
-#include "log.h"
+#include "./log.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,41 +67,42 @@ int log_event(XMOD_EVENT event, const EventLog *inf) {
     if (!make_logs)
         return -1;
     char buf[PATH_MAX];
-    char *curr_buf = buf;
 
     // time
     double long time = get_milisecs();
     double long time_passed_mili_secs = time - time_init;
-    curr_buf += sprintf(curr_buf, "%Lf ; ", time_passed_mili_secs);
+    snprintf(buf, sizeof(buf), "%Lf ; ", time_passed_mili_secs);
 
     // pid
     pid_t pid = getpid();
-    curr_buf += sprintf(curr_buf, "%d ; ", pid);
+    snprintf(buf + strlen(buf), sizeof(buf), "%d ; ", pid);
 
     // event and info
     switch (event) {
         case PROC_CREAT:
-            curr_buf += sprintf(curr_buf, "PROC_CREAT ;");
+            snprintf(buf + strlen(buf), sizeof(buf), "PROC_CREAT ;");
             for (int i = 0; i < inf->arg.argc_info; i++) {
-                curr_buf += sprintf(curr_buf, " %s", inf->arg.argv_info[i]);
+                snprintf(buf + strlen(buf), sizeof(buf), " %s",
+                         inf->arg.argv_info[i]);
             }
-            curr_buf += sprintf(curr_buf, "\n");
+            snprintf(buf + strlen(buf), sizeof(buf), "%s", "\n");
             break;
         case PROC_EXIT:
-            curr_buf += sprintf(curr_buf, "PROC_EXIT ; %d\n", inf->exit_code);
+            snprintf(buf + strlen(buf), sizeof(buf), "PROC_EXIT ; %d\n",
+                     inf->exit_code);
             break;
         case SIGNAL_RECV:
-            curr_buf +=
-                sprintf(curr_buf, "SIGNAL_RECV ; %s\n", inf->signal_received);
+            snprintf(buf + strlen(buf), sizeof(buf), "SIGNAL_RECV ; %s\n",
+                     inf->signal_received);
             break;
         case SIGNAL_SENT:
-            curr_buf += sprintf(curr_buf, "SIGNAL_SENT ; %s : %d\n",
-                                inf->sent.signal_sent, inf->sent.pid_sent);
+            snprintf(buf + strlen(buf), sizeof(buf), "SIGNAL_SENT ; %s : %d\n",
+                     inf->sent.signal_sent, inf->sent.pid_sent);
             break;
         case FILE_MODF:
-            curr_buf += sprintf(curr_buf, "FILE_MODF ; %s : %o : %o\n",
-                                inf->perms.file_name, inf->perms.old_perms,
-                                inf->perms.new_perms);
+            snprintf(buf + strlen(buf), sizeof(buf),
+                     "FILE_MODF ; %s : %o : %o\n", inf->perms.file_name,
+                     inf->perms.old_perms, inf->perms.new_perms);
             break;
         default:
             return -1;

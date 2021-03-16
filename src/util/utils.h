@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef SRC_UTIL_UTILS_H_
+#define SRC_UTIL_UTILS_H_
 
 #include <stdbool.h>
 
@@ -21,4 +21,4 @@ bool has_irregular_coma(const char str[]);
 
 void strip_trailing_slashes(char str[]);
 
-#endif
+#endif // SRC_UTIL_UTILS_H_

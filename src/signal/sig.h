@@ -1,5 +1,6 @@
-#ifndef SIG_H
-#define SIG_H
+#ifndef SRC_SIGNAL_SIG_H_
+#define SRC_SIGNAL_SIG_H_
+
 #include <stdbool.h>
 
 int set_handler_SIGINT();
@@ -14,4 +15,4 @@ void set_nfmod();
 
 bool get_running();
 
-#endif
+#endif  // SRC_SIGNAL_SIG_H_

@@ -1,11 +1,11 @@
-#include "parsers.h"
-#include "../retrieve/retrievers.h"
-#include "../util/utils.h"
-#include <string.h>
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "../retrieve/retrievers.h"
+#include "../util/utils.h"
+#include "parsers.h"
 
 static void assemble_permissions_user(PermissionTypes *permissions,
                                       mode_t octal_mode) {
@@ -112,9 +112,10 @@ void parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
     assemble_permissions(curr_mode, &curr_mode_permissions);
 
     const char sep[2] = ",";
-    for (char *i = strtok(symbolic_mode, sep); i != NULL;) {
+    char *pos;
+    for (char *i = strtok_r(symbolic_mode, sep, &pos); i != NULL;) {
         update_permissions(i, &curr_mode_permissions);
-        i = strtok(NULL, sep);
+        i = strtok_r(NULL, sep, &pos);
     }
 
     xmodCommand->octal_mode = get_octal_mode(&curr_mode_permissions);
@@ -140,7 +141,8 @@ void parse(char **argv, XmodCommand *xmodCommand) {
         parse_options(argv[mode_index++], xmodCommand);
     }
 
-    strcpy(xmodCommand->file_dir, argv[mode_index + 1]);
+    snprintf(xmodCommand->file_dir, sizeof(xmodCommand->file_dir),
+             argv[mode_index + 1]);
     strip_trailing_slashes(xmodCommand->file_dir);
 
     if (is_number_arg(argv[mode_index])) {

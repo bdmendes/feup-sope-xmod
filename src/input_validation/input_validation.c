@@ -1,10 +1,10 @@
-#include "input_validation.h"
-#include "../retrieve/retrievers.h"
-#include "../util/utils.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "../retrieve/retrievers.h"
+#include "../util/utils.h"
+#include "input_validation.h"
 
 static bool is_invalid_octal_number(const char *octal_number) {
     if (strtoul(octal_number, NULL, 8) > 0777)
@@ -22,13 +22,16 @@ static bool is_invalid_symbolic_mode(char *symbolic_mode) {
         return true;
 
     const char sep[2] = ",";
-    for (char *i = strtok(symbolic_mode, sep); i != NULL;) {
-        if (strlen(i) < 2) { // at least operator and permission group
+    char *pos;
+    for (char *i = strtok_r(symbolic_mode, sep, &pos); i != NULL;) {
+        if (strlen(i) < 2) {
+            // operator and permission group are not provided
             return true;
         }
         int operator_index = 0;
 
-        if (!is_permission_operator(i[0])) { // explicits user
+        //
+        if (!is_permission_operator(i[0])) {
             if (strlen(i) < 3 || !is_user_flag(i[0])) {
                 return true;
             }
@@ -38,7 +41,7 @@ static bool is_invalid_symbolic_mode(char *symbolic_mode) {
             !has_permissions_flags(i, operator_index + 1)) {
             return true;
         }
-        i = strtok(NULL, sep);
+        i = strtok_r(NULL, sep, &pos);
     }
     return false;
 }
@@ -64,7 +67,7 @@ bool is_invalid_input(char **argv, int argc) {
 
     // Check for valid mode
     char mode_str[strlen(argv[mode_index])];
-    strcpy(mode_str, argv[mode_index]);
+    snprintf(mode_str, sizeof(mode_str), argv[mode_index]);
 
     if (is_number_arg(mode_str) ? is_invalid_octal_number(mode_str)
                                 : is_invalid_symbolic_mode(mode_str)) {

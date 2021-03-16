@@ -1,5 +1,5 @@
-#ifndef PARSERS_H
-#define PARSERS_H
+#ifndef SRC_PARSE_PARSERS_H_
+#define SRC_PARSE_PARSERS_H_
 
 #include <stdbool.h>
 #include <dirent.h>
@@ -32,4 +32,4 @@ void parse(char **argv, XmodCommand *xmodCommand);
 
 mode_t get_octal_mode(FilePermissions *permissions);
 
-#endif
+#endif  // SRC_PARSE_PARSERS_H_

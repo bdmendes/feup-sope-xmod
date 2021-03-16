@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #include "../log/log.h"
-#include "../signal/sig.h"
+#include "sig.h"
 
 static char *file_dir;
 static unsigned int nftot = 0;
@@ -19,13 +19,13 @@ void handler_SIGINT(int signo) {
     log_event(SIGNAL_RECV, &sig);
     printf("\n%d ; %s ; %d ; %d \n", getpid(), file_dir, nftot, nfmod);
     printf("Do you wish to continue? [Y/N]\n");
-    char buf[100];
+    char buf[2];
     scanf("%c", buf);
     if (buf[0] != 'y' && buf[0] != 'Y') {
         running = false;
     }
-    while (getchar() != '\n')
-        ;
+    while (getchar() != '\n') {
+    }
 }
 
 int set_handler_SIGINT() {
