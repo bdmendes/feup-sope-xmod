@@ -2,10 +2,10 @@
 xmod
 
 # Log file
-./log*
+logs
 
 # Test directory
-test_dir/
+testdir/**
 
 # Prerequisites
 *.d
