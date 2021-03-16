@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "input_validation/input_validation.h"
 #include "log/log.h"
 #include "parse/parsers.h"
 #include "retrieve/retrievers.h"
@@ -19,7 +20,7 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx);
 int process(char **argv);
 
 int main(int argc, char **argv) {
-    if (setup_event_logging() != 0) {
+    if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
         exit(EXIT_FAILURE);
     }
     EventLog event_log;
@@ -30,7 +31,7 @@ int main(int argc, char **argv) {
     process(argv);
 }
 
-int process(char **argv) { // pass log too
+int process(char **argv) {
     XmodCommand cmd;
     parse(argv, &cmd);
 
@@ -40,7 +41,7 @@ int process(char **argv) { // pass log too
     if (retrieve_file_info(&file_info, cmd.file_dir) == 0) {
         success = chmod(cmd.file_dir, cmd.octal_mode);
     } else {
-        fprintf(stderr, "chmod: cannot access '%s': %s\n", cmd.file_dir,
+        fprintf(stderr, "xmod: cannot access '%s': %s\n", cmd.file_dir,
                 strerror(errno));
         success = -1;
     }
@@ -52,7 +53,7 @@ int process(char **argv) { // pass log too
                               cmd.octal_mode, changed, success);
     }
 
-    if (cmd.options.recursive && file_info.type == DT_DIR) {
+    if (success == 0 && cmd.options.recursive && file_info.type == DT_DIR) {
         traverse(argv, cmd.file_dir, cmd.file_idx);
     }
 

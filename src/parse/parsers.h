@@ -12,7 +12,7 @@ typedef struct {
 } PermissionTypes;
 
 typedef struct {
-    PermissionTypes user;
+    PermissionTypes owner;
     PermissionTypes group;
     PermissionTypes other;
 } FilePermissions;
@@ -28,7 +28,7 @@ typedef struct {
     unsigned file_idx;
 } XmodCommand;
 
-int parse(char **argv, XmodCommand *xmodCommand);
+void parse(char **argv, XmodCommand *xmodCommand);
 
 mode_t get_octal_mode(FilePermissions *permissions);
 

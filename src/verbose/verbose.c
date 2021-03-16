@@ -6,9 +6,9 @@
 #include <sys/stat.h>
 
 static void get_symbolic_string(mode_t mode, char *string) {
-    string[USER * 3 + READ] = mode & S_IRUSR ? 'r' : '-';
-    string[USER * 3 + WRITE] = mode & S_IWUSR ? 'w' : '-';
-    string[USER * 3 + EXECUTE] = mode & S_IXUSR ? 'x' : '-';
+    string[OWNER * 3 + READ] = mode & S_IRUSR ? 'r' : '-';
+    string[OWNER * 3 + WRITE] = mode & S_IWUSR ? 'w' : '-';
+    string[OWNER * 3 + EXECUTE] = mode & S_IXUSR ? 'x' : '-';
 
     string[GROUP * 3 + READ] = mode & S_IRGRP ? 'r' : '-';
     string[GROUP * 3 + WRITE] = mode & S_IWGRP ? 'w' : '-';
