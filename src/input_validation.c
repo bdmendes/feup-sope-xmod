@@ -1,42 +1,44 @@
 #include "input_validation.h"
-#include "utils.h"
 #include "retrievers.h"
+#include "utils.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-static bool is_invalid_octal_number(const char *octal_number){
-    char *buf;
-    if(strtoul(octal_number, &buf,8) > 777) return true;
+static bool is_invalid_octal_number(const char *octal_number) {
+    if (strtoul(octal_number, NULL, 8) > 777)
+        return true;
 
-    for(int i = strlen(octal_number) - 1; i >= 0; --i)
-        if(octal_number[i] > '7') return true;
+    for (int i = strlen(octal_number) - 1; i >= 0; --i)
+        if (octal_number[i] > '7')
+            return true;
 
     return false;
 }
 
-static bool is_invalid_symbolic_mode(char* symbolic_mode){
-    //symbolic mode cannot start or end with a comma
-    if(symbolic_mode[0] == ',' || symbolic_mode[strlen(symbolic_mode)-1] == ',') return true;
+static bool is_invalid_symbolic_mode(char *symbolic_mode) {
+    if (has_irregular_coma(symbolic_mode))
+        return true;
 
     const char sep[2] = ",";
     for (char *i = strtok(symbolic_mode, sep); i != NULL;) {
-        if(strlen(i) < 2) {
+        if (strlen(i) < 2) { // at least operator and permission group
             strcpy(symbolic_mode, i);
             return true;
         }
         int operator_index = 0;
 
-        if(!is_permission_operator(i[0])){
-            if(strlen(i) < 3 || !is_user_flag(i[0])) {
+        if (!is_permission_operator(i[0])) { // explicits user
+            if (strlen(i) < 3 || !is_user_flag(i[0])) {
                 strcpy(symbolic_mode, i);
                 return true;
             }
-             operator_index++;
+            operator_index++;
         }
-        if(!is_permission_operator(i[operator_index]) || !has_permissions_flags(i, ++operator_index)) {
-             strcpy(symbolic_mode, i);
+        if (!is_permission_operator(i[operator_index]) ||
+            !has_permissions_flags(i, operator_index + 1)) {
+            strcpy(symbolic_mode, i);
             return true;
         }
         i = strtok(NULL, sep);
@@ -44,40 +46,38 @@ static bool is_invalid_symbolic_mode(char* symbolic_mode){
     return false;
 }
 
-bool is_invalid_input(char** argv, int argc){
-    if(argc < 3){
+bool is_invalid_input(char **argv, int argc) {
+    if (argc < 3) {
         printf("xmod: missing operand\n");
         return true;
     }
     int mode_index = 1;
 
-    while(argv[mode_index][0] == '-'){
-        if(has_permissions_flags(argv[mode_index], 1)) break;
+    // Check for valid option flags
+    while (argv[mode_index][0] == '-') {
+        if (has_permissions_flags(argv[mode_index], 1))
+            break;
 
-        if(!is_flag_arg(argv[mode_index])){
+        if (!is_flag_arg(argv[mode_index])) {
             printf("xmod: invalid option '%s'\n", argv[mode_index]);
             return true;
         }
         mode_index++;
     }
-    char *mode_to_be_modified = (char *)malloc(sizeof(char)*strlen(argv[mode_index])); //strtok cannot modify argv
-    strcpy(mode_to_be_modified, argv[mode_index]);
 
-    if((is_number_arg(mode_to_be_modified) && is_invalid_octal_number(mode_to_be_modified)) || 
-        (!is_number_arg(mode_to_be_modified) && is_invalid_symbolic_mode(mode_to_be_modified))){
-        printf("xmod: invalid mode '%s'\n", mode_to_be_modified);
-        free(mode_to_be_modified);
+    // Check for valid mode
+    char mode_str[strlen(argv[mode_index])];
+    strcpy(mode_str, argv[mode_index]);
+
+    if (is_number_arg(mode_str) ? is_invalid_octal_number(mode_str)
+                                : is_invalid_symbolic_mode(mode_str)) {
+        printf("xmod: invalid mode '%s'\n", mode_str);
         return true;
     }
-    free(mode_to_be_modified);
 
-    if(argc > 3){
-        printf("xmod: too many arguments\n");
-        return true;
-    }
-    mode_t file_mode;
-    if(retrieve_file_mode(argv[2], &file_mode)){
-        printf("xmod: cannot access %s: No such file or directory\n", argv[2]);
+    if (argc > mode_index + 2) {
+        printf("xmod: too many arguments; multiple file paths are not "
+               "supported\n");
         return true;
     }
 
