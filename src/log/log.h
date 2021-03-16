@@ -42,8 +42,4 @@ int close_log_file();
 
 long double get_initial_instant();
 
-bool are_logs_enabled();
-
-long double get_milisecs();
-
 #endif
