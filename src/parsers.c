@@ -57,11 +57,7 @@ static void update_curr_permissions(XmodPermissionsTypes *old_permissions,
 
 void update_permissions(const char input_symbolic_mode[],
                        FilePermissions *permissions) {
-    int operator_index = (input_symbolic_mode[1] == '+' || input_symbolic_mode[1] == '-' ||
-         input_symbolic_mode[1] == '=')
-            ? 1
-            : 0;
-    //is_permission_operator(input_symbolic_mode[1])? 1 : 0;
+    int operator_index = is_permission_operator(input_symbolic_mode[1])? 1 : 0;
 
     XmodPermissionsTypes input_permissions;
     input_permissions.read = strchr(input_symbolic_mode, 'r') != NULL;
