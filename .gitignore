@@ -1,5 +1,11 @@
 # Main executable
-src/xmod
+xmod
+
+# Log file
+logs
+
+# Test directory
+testdir/**
 
 # Prerequisites
 *.d
@@ -33,10 +39,7 @@ src/xmod
 
 # Executables
 *.exe
-*.out
-*.app
-*.i*86
-*.x86_64
+*.outfprintf(stderr, )
 *.hex
 
 # Debug files

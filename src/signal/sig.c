@@ -11,7 +11,7 @@
 #include <string.h>
 
 #include "sig.h"
-#include "log.h"
+#include "../log/log.h"
 
 static char* file_dir;
 static unsigned int nftot = 0;
