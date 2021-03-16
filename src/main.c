@@ -14,8 +14,24 @@
 #include "util/utils.h"
 #include "verbose/verbose.h"
 
-int traverse(char *argv[], const char dir_path[], unsigned file_idx);
+/**
+ * @brief Convert command line arguments to a xmod command and execute it.
+ *
+ * @param argv command line arguments
+ * @return 0 if no error
+ */
 int process(char *argv[]);
+
+/**
+ * @brief Change permissions for all files in a directory, and recursively enter
+ * subdirectories, in newly created instances.
+ *
+ * @param argv command line arguments
+ * @param dir_path directory path
+ * @param file_idx file path argument index
+ * @return 0 if no error
+ */
+int traverse(char *argv[], const char dir_path[], unsigned file_idx);
 
 int main(int argc, char *argv[]) {
     if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
