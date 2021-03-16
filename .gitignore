@@ -1,5 +1,5 @@
 # Main executable
-src/xmod
+xmod
 
 # Prerequisites
 *.d

@@ -1,9 +1,9 @@
 
 #include "verbose.h"
-#include "xmod.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 static void get_symbolic_string(mode_t mode, char *string) {
     string[USER * 3 + READ] = mode & S_IRUSR ? 'r' : '-';
