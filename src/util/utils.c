@@ -65,3 +65,12 @@ bool has_irregular_coma(const char str[]) {
     }
     return false;
 }
+
+void strip_trailing_slashes(char str[]) { // Trim trailing space
+    for (int i = strlen(str) - 1; i >= 0; i--) {
+        if (str[i] != '/') {
+            str[i + 1] = '\0';
+            return;
+        }
+    }
+}

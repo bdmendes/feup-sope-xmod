@@ -141,6 +141,7 @@ void parse(char **argv, XmodCommand *xmodCommand) {
     }
 
     strcpy(xmodCommand->file_dir, argv[mode_index + 1]);
+    strip_trailing_slashes(xmodCommand->file_dir);
 
     if (is_number_arg(argv[mode_index])) {
         parse_octal_mode(argv[mode_index], xmodCommand);

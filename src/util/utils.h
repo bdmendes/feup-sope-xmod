@@ -19,4 +19,6 @@ bool is_user_flag(char c);
 
 bool has_irregular_coma(const char str[]);
 
+void strip_trailing_slashes(char str[]);
+
 #endif
