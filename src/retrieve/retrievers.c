@@ -1,11 +1,13 @@
 #include "retrievers.h"
 #include <dirent.h>
 #include <stdio.h>
+#include <string.h>
 
 static void assemble_file_info(FileInfo *file_info, const mode_t mode,
                                const char *path);
 
 int retrieve_file_info(FileInfo *file_info, char *file_path) {
+    memset(file_info, 0, sizeof(*file_info));
     mode_t mode = 0;
     if (retrieve_file_mode(file_path, &mode) != 0)
         return -1;

@@ -1,6 +1,6 @@
 #include "input_validation.h"
-#include "retrievers.h"
-#include "utils.h"
+#include "../retrieve/retrievers.h"
+#include "../util/utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,21 +24,18 @@ static bool is_invalid_symbolic_mode(char *symbolic_mode) {
     const char sep[2] = ",";
     for (char *i = strtok(symbolic_mode, sep); i != NULL;) {
         if (strlen(i) < 2) { // at least operator and permission group
-            strcpy(symbolic_mode, i);
             return true;
         }
         int operator_index = 0;
 
         if (!is_permission_operator(i[0])) { // explicits user
             if (strlen(i) < 3 || !is_user_flag(i[0])) {
-                strcpy(symbolic_mode, i);
                 return true;
             }
             operator_index++;
         }
         if (!is_permission_operator(i[operator_index]) ||
             !has_permissions_flags(i, operator_index + 1)) {
-            strcpy(symbolic_mode, i);
             return true;
         }
         i = strtok(NULL, sep);
@@ -59,7 +56,7 @@ bool is_invalid_input(char **argv, int argc) {
             break;
 
         if (!is_flag_arg(argv[mode_index])) {
-            printf("xmod: invalid option '%s'\n", argv[mode_index]);
+            printf("xmod: invalid option -- '%s'\n", argv[mode_index]);
             return true;
         }
         mode_index++;
@@ -71,12 +68,12 @@ bool is_invalid_input(char **argv, int argc) {
 
     if (is_number_arg(mode_str) ? is_invalid_octal_number(mode_str)
                                 : is_invalid_symbolic_mode(mode_str)) {
-        printf("xmod: invalid mode '%s'\n", mode_str);
+        printf("xmod: invalid mode '%s'\n", argv[mode_index]);
         return true;
     }
 
     if (argc > mode_index + 2) {
-        printf("xmod: too many arguments; multiple file paths are not "
+        printf("xmod: too many arguments: multiple file paths are not "
                "supported\n");
         return true;
     }

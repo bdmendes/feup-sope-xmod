@@ -5,7 +5,7 @@
 
 typedef unsigned char file_type;
 
-typedef struct FileInfo {
+typedef struct {
     const char *path;
     mode_t octal_mode;
     file_type type;
