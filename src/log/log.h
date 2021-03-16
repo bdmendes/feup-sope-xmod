@@ -42,8 +42,14 @@ int close_log_file();
 
 long double get_initial_instant();
 
-int log_process_exit_creat(int exit_code);
+int log_proc_creat_creat(int argc, char **argv);
 
-int log_process_creat_creat(int argc, char **argv);
+int log_proc_exit_creat(int exit_code);
+
+int log_proc_sign_recev_creat(char* sign_receiv);
+
+int log_proc_sign_sent_creat(char* sign_sent, pid_t pid_sent);
+
+int log_proc_file_mod_creat(char *file_name, mode_t old_perms, mode_t new_perms);
 
 #endif

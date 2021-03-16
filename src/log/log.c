@@ -123,15 +123,36 @@ long double get_initial_instant() {
     return time_init;
 }
 
-int log_process_exit_creat(int exit_code){
+int log_proc_creat_creat(int argc, char **argv){
+    EventLog args;
+    args.arg.argc_info = argc;
+    args.arg.argv_info = argv;
+    return log_event(PROC_CREAT, &args);
+}
+
+int log_proc_exit_creat(int exit_code){
     EventLog args;
     args.exit_code = exit_code;
     return log_event(PROC_EXIT, &args);
 }
 
-int log_process_creat_creat(int argc, char **argv){
+int log_proc_sign_recev_creat(char* sign_receiv){
     EventLog args;
-    args.arg.argc_info = argc;
-    args.arg.argv_info = argv;
-    return log_event(PROC_CREAT, &args);
+    args.signal_received = sign_receiv;
+    return log_event(SIGNAL_RECV, &args);
+}
+
+int log_proc_sign_sent_creat(char* sign_sent, pid_t pid_sent){
+    EventLog args;
+    args.sent.signal_sent = sign_sent;
+    args.sent.pid_sent = pid_sent;
+    return log_event(SIGNAL_SENT, &args);
+}
+
+int log_proc_file_mod_creat(char *file_name, mode_t old_perms, mode_t new_perms){
+    EventLog args;
+    args.perms.file_name = file_name;
+    args.perms.old_perms = old_perms;
+    args.perms.new_perms = new_perms;
+    return log_event(FILE_MODF, &args);
 }

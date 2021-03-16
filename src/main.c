@@ -21,18 +21,11 @@ int process(char *argv[]);
 
 int main(int argc, char *argv[]) {
   setup_event_logging();
-  EventLog nj;
-  log_process_exit_creat(1);
-  nj.signal_received = "helo";
-  log_event(SIGNAL_RECV, &nj);
-  nj.sent.signal_sent = "hello";
-  nj.sent.pid_sent = 4;
-  log_event(SIGNAL_SENT, &nj);
-  nj.perms.file_name = "~";
-  nj.perms.old_perms = 0666;
-  nj.perms.new_perms = 0666;
-  log_event(FILE_MODF , &nj);
-  log_process_creat_creat(argc,argv);
+  log_proc_exit_creat(1);
+  log_proc_sign_recev_creat("helhlo");
+  log_proc_sign_sent_creat("BAT" , 4);
+  log_proc_file_mod_creat("~DSC", 0451, 0777);
+  log_proc_creat_creat(argc,argv);
 
   close_log_file();
     /*if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
