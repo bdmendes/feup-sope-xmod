@@ -2,13 +2,15 @@ CC = cc
 CFLAGS = -Wall -Werror
 PROG_NAME = xmod
 
-OBJECTS = main.o parsers.o retrievers.o utils.o log.o sig.o
+SRCDIR = src
+
+SOURCES := $(shell find $(SRCDIR) -name '*.c')
+OBJECTS := $(SOURCES:%.c=%.o)
+
+.PHONY: clean
 
 xmod: $(OBJECTS)
 	$(CC) $(CFLAGS) -o $(PROG_NAME) $(OBJECTS)
 
-%.o: %.c %.h
-
-.PHONY: clean
 clean:
 	rm -f $(PROG_NAME) $(OBJECTS)

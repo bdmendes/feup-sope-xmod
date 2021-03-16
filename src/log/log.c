@@ -1,27 +1,53 @@
 #include "log.h"
-#include "xmod.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 
 static long double time_init;
 static int log_fd = -1;
+static bool make_logs = true;
 
 int setup_event_logging() {
-    char *dir = getenv("LOG_FILENAME");
-    if (dir == NULL) {
-        fprintf(stderr, "LOG_FILENAME environment variable not found\n");
+    char *log_file_path = getenv(LOG_FILE_PATH_ENV);
+    if (log_file_path == NULL) {
+        fprintf(stderr, "%s environment variable not found\n",
+                LOG_FILE_PATH_ENV);
+        make_logs = false;
         return -1;
     }
-    int fd = open(dir, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
+
+    int fd;
+    bool is_top_process = getpid() == getpgrp();
+    fd = open(log_file_path,
+              O_WRONLY | (is_top_process ? O_CREAT | O_TRUNC : O_APPEND),
+              S_IRWXU);
     if (fd == -1) {
         perror("log file open");
         return -1;
     }
+
+    if (!is_top_process) {
+        char *saved_time_init = getenv(LOG_PARENT_INITIAL_TIME_ENV);
+        if (saved_time_init == NULL) {
+            fprintf(stderr, "%s environment variable not found\n",
+                    LOG_PARENT_INITIAL_TIME_ENV);
+            if (close(fd) != 0) {
+                perror("could not close file");
+            }
+            return -1;
+        }
+        time_init = strtold(saved_time_init, NULL);
+        printf("GETTING SAVED TIME INIT: %Lf\n", time_init);
+        fflush(stdout);
+    } else {
+        time_init = get_milisecs();
+        printf("GETTING TIME INFO FOR FIRST TIME: %Lf\n", time_init);
+    }
+
     time_init = get_milisecs();
     log_fd = fd;
     return 0;
@@ -81,11 +107,19 @@ int close_log_file() {
     return 0;
 }
 
-long double get_milisecs(){
+long double get_initial_instant() {
+    return time_init;
+}
+
+inline bool are_logs_enabled() {
+    return make_logs;
+}
+
+long double get_milisecs() {
     struct timeval tim;
     gettimeofday(&tim, 0);
     long sec = tim.tv_sec;
     long microsec = tim.tv_usec;
-    long double mili_secs = sec * 1000.0 + microsec/1000.0;
+    long double mili_secs = sec * 1000.0 + microsec / 1000.0;
     return mili_secs;
 }

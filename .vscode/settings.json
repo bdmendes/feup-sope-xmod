@@ -3,7 +3,7 @@
     "editor.formatOnSave": true,
     "editor.tabSize": 4,
     "editor.wordWrap": "bounded",
-    "editor.wordWrapColumn": 100,
+    "editor.wordWrapColumn": 150,
     "files.associations": {
         "stat.h": "c",
         "stdio.h": "c",
