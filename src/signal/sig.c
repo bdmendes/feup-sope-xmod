@@ -19,22 +19,27 @@ static unsigned int nfmod = 0;
 static bool running = true;
 
 void handler(int signo){
-	EventLog sig;
 	if(signo == SIGINT){
-		sig.signal_received = "SIGINT";
-		log_event(SIGNAL_RECV, &sig);
-		printf("\n%d ; %s ; %d ; %d \n",  getpid(), file_dir, nftot, nfmod);
-		printf("Do you wish to continue? [Y/N]\n");
-		char buf[100];
-		scanf("%c", buf);
-		if(buf[0] != 'y' && buf[0] != 'Y'){
-			running = false;
+		if(getpid() != getpgrp()){
+			printf("\n%d ; %s ; %d ; %d \n",  getpid(), file_dir, nftot, nfmod);
+			printf("Do you wish to continue? [Y/N]\n");
+			char buf[100];
+			scanf("%c", buf);
+			if(buf[0] != 'y' && buf[0] != 'Y'){
+				killpg(getpgrp(), SIGKILL);
+			}
+			else 
+				killpg(getpgrp(), SIGCONT);
+			while ( getchar() != '\n' );
 		}
-		while ( getchar() != '\n' );
+		else {
+			pause();
+		}
 	}
 	else{
-		sig.signal_received = strsignal(signo);
-		log_event(SIGNAL_RECV, &sig);
+		//a colocar código de log
+		/*sig.signal_received = strsignal(signo);
+		log_event(SIGNAL_RECV, &sig);*/
 	}
 
 }
@@ -43,9 +48,7 @@ int set_handler(){
 	struct sigaction new, old;
 	sigset_t smask;	
 	for(int i = 1; i < NSIG; i++){
-		printf("%d\n", i);
 		if(i!=SIGKILL && i!=SIGSTOP){
-			
 			if (sigemptyset(&smask)==-1){
 				perror ("sigsetfunctions");
 				if(i==SIGINT) return -1;  //it will be really bad if we caan't treat the 'main' signal
