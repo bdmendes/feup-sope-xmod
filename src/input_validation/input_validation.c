@@ -9,7 +9,7 @@
 static bool is_invalid_octal_number(const char *octal_number)
 {
     //xmod octal mode has to start with '0'
-    if (octal_number[0] != '0')
+    if (octal_number[0] != '0' || strtoul(octal_number, NULL, 8) > 0777)
         return true;
     for (int i = strlen(octal_number) - 1; i >= 0; --i)
         if (octal_number[i] > '7')
