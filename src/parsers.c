@@ -39,7 +39,7 @@ static void remove_permissions(XmodPermissionsTypes *curr_permissions,
         curr_permissions->execute = false;
 }
 
-static int update_curr_permissions(XmodPermissionsTypes *old_permissions,
+static void update_curr_permissions(XmodPermissionsTypes *old_permissions,
                                    XmodPermissionsTypes *new_permissions,
                                    const char operator) {
     switch (operator) {
@@ -52,19 +52,16 @@ static int update_curr_permissions(XmodPermissionsTypes *old_permissions,
         case '=':
             *old_permissions = *new_permissions;
             break;
-        default:
-            return 1; // invalid input
     }
-    return 0;
 }
 
-int update_permissions(const char input_symbolic_mode[],
+void update_permissions(const char input_symbolic_mode[],
                        FilePermissions *permissions) {
-    int operator_index =
-        (input_symbolic_mode[1] == '+' || input_symbolic_mode[1] == '-' ||
+    int operator_index = (input_symbolic_mode[1] == '+' || input_symbolic_mode[1] == '-' ||
          input_symbolic_mode[1] == '=')
             ? 1
             : 0;
+    //is_permission_operator(input_symbolic_mode[1])? 1 : 0;
 
     XmodPermissionsTypes input_permissions;
     input_permissions.read = strchr(input_symbolic_mode, 'r') != NULL;
@@ -94,7 +91,6 @@ int update_permissions(const char input_symbolic_mode[],
                                     input_symbolic_mode[operator_index]);
             break;
     }
-    return 0;
 }
 
 mode_t get_octal_mode(FilePermissions *permissions) {
@@ -123,7 +119,7 @@ void get_symbolic_string(mode_t mode, char *string) {
     string[OTHER * 3 + EXECUTE] = mode & S_IXOTH ? 'x' : '-';
 }
 
-int parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
+static void parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
     mode_t curr_mode;
     FileInfo file_info;
     retrieve_file_info(&file_info, xmodCommand->file_dir);
@@ -139,14 +135,12 @@ int parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
     }
 
     xmodCommand->octal_mode = get_octal_mode(&curr_mode_permissions);
-    return 0;
 }
 
-static int parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand) {
+static void parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand) {
     char *buf;
     mode_t mode = strtoul(mode_str, &buf, 8) & 0777;
     xmodCommand->octal_mode = mode;
-    return 0;
 }
 
 static void parse_options(const char *options, XmodCommand *xmodCommand) {
@@ -156,7 +150,7 @@ static void parse_options(const char *options, XmodCommand *xmodCommand) {
         strchr(options, 'c') != NULL && !xmodCommand->options.verbose;
 }
 
-int parse(char **argv, XmodCommand *xmodCommand) {
+void parse(char **argv, XmodCommand *xmodCommand) {
     int mode_index = 1;
 
     memset(&xmodCommand->options, 0, sizeof(xmodCommand->options));
@@ -174,6 +168,4 @@ int parse(char **argv, XmodCommand *xmodCommand) {
     }
 
     xmodCommand->file_idx = mode_index + 1;
-
-    return 0;
 }

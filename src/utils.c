@@ -33,10 +33,18 @@ static bool is_permission_flag(char c){
    return c == 'r' || c == 'w' || c == 'x';
 }
 
-bool has_permissions_flags(const char* argument){
-    for(int i = 1; i < strlen(argument); ++i){
+bool has_permissions_flags(const char* argument, int start_index){
+    for(int i = start_index; i < strlen(argument); ++i){
         if(!is_permission_flag(argument[i]))
             return false;
     }
     return true;
+}
+
+bool is_permission_operator(char c){
+    return c == '+' || c == '-' || c == '=';
+}
+
+bool is_user_flag(char c){
+    return c == 'u' || c == 'g' || c == 'o' || c == 'a';
 }

@@ -16,9 +16,9 @@ typedef struct FilePermissions {
     struct XmodPermissionsTypes other;
 } FilePermissions;
 
-int parse(char **argv, XmodCommand *xmodCommand);
+void parse(char **argv, XmodCommand *xmodCommand);
 
-int update_permissions(const char *symbolic_mode, FilePermissions *octal_mode);
+void update_permissions(const char *symbolic_mode, FilePermissions *octal_mode);
 
 mode_t get_octal_mode(FilePermissions *permissions);
 
