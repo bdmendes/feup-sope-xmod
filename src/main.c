@@ -16,22 +16,18 @@
 #include "util/utils.h"
 #include "verbose/verbose.h"
 
-int traverse(char *argv[], char dir_path[], unsigned file_idx);
-int process(char **argv);
+int traverse(char *argv[], const char dir_path[], unsigned file_idx);
+int process(char *argv[]);
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
     if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
         exit(EXIT_FAILURE);
     }
-    EventLog event_log;
-    event_log.perms.file_name = "my-file-name";
-    event_log.perms.new = 0777;
-    event_log.perms.old = 0333;
-    log_event(FILE_MODF, &event_log);
+    // log process creation here; include after logger functions are ready
     process(argv);
 }
 
-int process(char **argv) {
+int process(char *argv[]) {
     XmodCommand cmd;
     parse(argv, &cmd);
 
@@ -60,12 +56,13 @@ int process(char **argv) {
     return 0;
 }
 
-int traverse(char *argv[], char dir_path[], unsigned file_idx) {
+int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
     DIR *dp = opendir(dir_path);
     if (dp == NULL) {
         perror("could not open directory");
         return -1;
     }
+
     struct dirent *dirent;
     while ((dirent = readdir(dp)) != NULL) {
         if (!is_ref_path(dirent->d_name)) {
@@ -84,7 +81,7 @@ int traverse(char *argv[], char dir_path[], unsigned file_idx) {
                 if (id == 0) {
                     char time_str[PATH_MAX];
                     sprintf(time_str, "%Lf", get_initial_instant());
-                    setenv(LOG_PARENT_INITIAL_TIME_ENV, time_str, 0);
+                    setenv(LOG_PARENT_INITIAL_TIME_ENV, time_str, 1);
                     execvp(argv[0], argv);
                 } else if (id != -1) {
                     wait(NULL);
