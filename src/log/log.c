@@ -122,3 +122,11 @@ int close_log_file() {
 long double get_initial_instant() {
     return time_init;
 }
+
+int log_process_exit_creat(int exit_code){
+    EventLog args;
+    args.exit_code = exit_code;
+    log_event(PROC_EXIT, &args);
+    return 0;
+}
+

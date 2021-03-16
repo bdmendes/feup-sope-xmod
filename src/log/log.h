@@ -42,4 +42,6 @@ int close_log_file();
 
 long double get_initial_instant();
 
+int log_process_exit_creat(int exit_code);
+
 #endif

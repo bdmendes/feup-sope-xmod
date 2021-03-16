@@ -20,11 +20,28 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx);
 int process(char *argv[]);
 
 int main(int argc, char *argv[]) {
-    if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
+  setup_event_logging();
+  EventLog nj;
+  log_process_exit_creat(1);
+  nj.signal_received = "helo";
+  log_event(SIGNAL_RECV, &nj);
+  nj.sent.signal_sent = "hello";
+  nj.sent.pid_sent = 4;
+  log_event(SIGNAL_SENT, &nj);
+  nj.perms.file_name = "~";
+  nj.perms.old_perms = 0666;
+  nj.perms.new_perms = 0666;
+  log_event(FILE_MODF , &nj);
+  nj.arg.argc_info = argc;
+  nj.arg.argv_info = argv;
+  log_event(PROC_CREAT, &nj);
+
+  close_log_file();
+    /*if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
         exit(EXIT_FAILURE);
     }
     // log process creation here; include after logger functions are ready
-    process(argv);
+    process(argv);*/
 }
 
 int process(char *argv[]) {
