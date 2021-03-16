@@ -6,13 +6,11 @@
 #include <stdlib.h>
 
 static bool is_invalid_octal_number(const char *octal_number){
-     int counter_octal_digits = 0;
-     
-    for(int i = strlen(octal_number) - 1; i >= 0; --i){
+    char *buf;
+    if(strtoul(octal_number, &buf,8) > 777) return true;
+
+    for(int i = strlen(octal_number) - 1; i >= 0; --i)
         if(octal_number[i] > '7') return true;
-        counter_octal_digits++;
-        if(counter_octal_digits > 3 && octal_number[i] != '0') return true;
-    }
 
     return false;
 }
@@ -61,17 +59,16 @@ bool is_invalid_input(char** argv, int argc){
         }
         mode_index++;
     }
-    char *symbolic_mode_to_be_modified = (char *)malloc(sizeof(char)*strlen(argv[mode_index])); //strtok cannot modify argv
-    strcpy(symbolic_mode_to_be_modified, argv[mode_index]);
+    char *mode_to_be_modified = (char *)malloc(sizeof(char)*strlen(argv[mode_index])); //strtok cannot modify argv
+    strcpy(mode_to_be_modified, argv[mode_index]);
 
-    if(is_number_arg(argv[mode_index]) && is_invalid_octal_number(argv[mode_index])){
-        printf("xmod: invalid mode '%s'\n", argv[mode_index]);
-        return true;
-    }else if(!is_number_arg(argv[mode_index]) && is_invalid_symbolic_mode(symbolic_mode_to_be_modified)){
-        printf("xmod: invalid mode '%s'\n", symbolic_mode_to_be_modified);
+    if((is_number_arg(mode_to_be_modified) && is_invalid_octal_number(mode_to_be_modified)) || 
+        (!is_number_arg(mode_to_be_modified) && is_invalid_symbolic_mode(mode_to_be_modified))){
+        printf("xmod: invalid mode '%s'\n", mode_to_be_modified);
+        free(mode_to_be_modified);
         return true;
     }
-
+    free(mode_to_be_modified);
 
     return false;
 }
