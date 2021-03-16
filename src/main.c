@@ -20,19 +20,11 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx);
 int process(char *argv[]);
 
 int main(int argc, char *argv[]) {
-  setup_event_logging();
-  log_proc_exit_creat(1);
-  log_proc_sign_recev_creat("helhlo");
-  log_proc_sign_sent_creat("BAT" , 4);
-  log_proc_file_mod_creat("~DSC", 0451, 0777);
-  log_proc_creat_creat(argc,argv);
-
-  close_log_file();
-    /*if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
+    if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
         exit(EXIT_FAILURE);
     }
     // log process creation here; include after logger functions are ready
-    process(argv);*/
+    process(argv);
 }
 
 int process(char *argv[]) {

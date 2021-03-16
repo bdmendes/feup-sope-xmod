@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/file.h>
 
 static long double time_init;
 static int log_fd = -1;
@@ -107,7 +108,19 @@ int log_event(XMOD_EVENT event, const EventLog *inf) {
             return -1;
     }
 
+    int flck = flock(log_fd, LOCK_EX);
+    if(flck != 0){ 
+        perror("flock");
+        return -2;
+    }
     write(log_fd, buf, strlen(buf));
+
+    flck = flock(log_fd, LOCK_UN);
+    if(flck != 0){ 
+        perror("flock");
+        return -2;
+    }
+
     return 0;
 }
 
