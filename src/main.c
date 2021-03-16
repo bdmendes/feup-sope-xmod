@@ -32,9 +32,7 @@ int main(int argc, char *argv[]) {
   nj.perms.old_perms = 0666;
   nj.perms.new_perms = 0666;
   log_event(FILE_MODF , &nj);
-  nj.arg.argc_info = argc;
-  nj.arg.argv_info = argv;
-  log_event(PROC_CREAT, &nj);
+  log_process_creat_creat(argc,argv);
 
   close_log_file();
     /*if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {

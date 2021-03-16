@@ -44,4 +44,6 @@ long double get_initial_instant();
 
 int log_process_exit_creat(int exit_code);
 
+int log_process_creat_creat(int argc, char **argv);
+
 #endif

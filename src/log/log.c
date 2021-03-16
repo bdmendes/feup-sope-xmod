@@ -126,7 +126,12 @@ long double get_initial_instant() {
 int log_process_exit_creat(int exit_code){
     EventLog args;
     args.exit_code = exit_code;
-    log_event(PROC_EXIT, &args);
-    return 0;
+    return log_event(PROC_EXIT, &args);
 }
 
+int log_process_creat_creat(int argc, char **argv){
+    EventLog args;
+    args.arg.argc_info = argc;
+    args.arg.argv_info = argv;
+    return log_event(PROC_CREAT, &args);
+}
