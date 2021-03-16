@@ -3,8 +3,6 @@
 
 #include <stdbool.h>
 
-int set_handler_SIGINT();
-
 void handler_SIGINT(int signo);
 
 void set_file(char* file);
