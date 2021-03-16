@@ -36,10 +36,10 @@ void handler(int signo){
 }
 
 int set_handler(){
+	struct sigaction new, old;
+	sigset_t smask;	
 	for(int i = 1; i <= 64; i++){
 		if(i!=SIGKILL && i!=SIGSTOP){
-			struct sigaction new, old;
-			sigset_t smask;	
 			
 			if (sigemptyset(&smask)==-1){
 				perror ("sigsetfunctions");
