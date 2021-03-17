@@ -12,8 +12,18 @@ static long double time_init;
 static int log_fd = -1;
 static bool make_logs = true;
 
+/**
+ * @brief Writes in the log file in the correct format
+ * @param event Type of event that occurred
+ * @param inf Arguments of the specific event
+ * @return 0 in case of success, -2 in fail of flock, -1 for the restant problems
+ */
 static int log_event(XMOD_EVENT event, const EventLog *inf);
 
+/**
+ * @brief Get the number of milissecs since January 1, 1970
+ * @return Number of milissecs since January 1, 1970
+ */
 static long double get_milisecs() {
     struct timeval tim;
     gettimeofday(&tim, 0);
