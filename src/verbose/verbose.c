@@ -1,24 +1,23 @@
-
 #include "verbose.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
-static void get_symbolic_string(mode_t mode, char *string) {
-    string[OWNER * 3 + READ] = mode & S_IRUSR ? 'r' : '-';
-    string[OWNER * 3 + WRITE] = mode & S_IWUSR ? 'w' : '-';
-    string[OWNER * 3 + EXECUTE] = mode & S_IXUSR ? 'x' : '-';
+static void get_symbolic_string(mode_t mode, char *str) {
+    str[OWNER * 3 + READ] = mode & S_IRUSR ? 'r' : '-';
+    str[OWNER * 3 + WRITE] = mode & S_IWUSR ? 'w' : '-';
+    str[OWNER * 3 + EXECUTE] = mode & S_IXUSR ? 'x' : '-';
 
-    string[GROUP * 3 + READ] = mode & S_IRGRP ? 'r' : '-';
-    string[GROUP * 3 + WRITE] = mode & S_IWGRP ? 'w' : '-';
-    string[GROUP * 3 + EXECUTE] = mode & S_IXGRP ? 'x' : '-';
+    str[GROUP * 3 + READ] = mode & S_IRGRP ? 'r' : '-';
+    str[GROUP * 3 + WRITE] = mode & S_IWGRP ? 'w' : '-';
+    str[GROUP * 3 + EXECUTE] = mode & S_IXGRP ? 'x' : '-';
 
-    string[OTHER * 3 + READ] = mode & S_IROTH ? 'r' : '-';
-    string[OTHER * 3 + WRITE] = mode & S_IWOTH ? 'w' : '-';
-    string[OTHER * 3 + EXECUTE] = mode & S_IXOTH ? 'x' : '-';
+    str[OTHER * 3 + READ] = mode & S_IROTH ? 'r' : '-';
+    str[OTHER * 3 + WRITE] = mode & S_IWOTH ? 'w' : '-';
+    str[OTHER * 3 + EXECUTE] = mode & S_IXOTH ? 'x' : '-';
 
-    string[NUMBER_OF_PERM_FIELDS] = '\0';
+    str[NUMBER_OF_PERM_FIELDS] = '\0';
 }
 
 void print_verbose_message(const char *file_name, mode_t old_mode,

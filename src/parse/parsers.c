@@ -1,12 +1,19 @@
-#include "parsers.h"
-#include "../retrieve/retrievers.h"
-#include "../util/utils.h"
-#include <string.h>
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "../retrieve/retrievers.h"
+#include "../util/utils.h"
+#include "parsers.h"
+
+/**
+ * Assembles, from an octal number, a struct with the file permissions for an
+ * user type.
+ *
+ * @param permissions struct to be filled
+ * @param octal_mode octal number representing the permissions
+ */
 static void assemble_permissions_user(PermissionTypes *permissions,
                                       mode_t octal_mode) {
     permissions->read = octal_mode & 04;
@@ -14,6 +21,12 @@ static void assemble_permissions_user(PermissionTypes *permissions,
     permissions->execute = octal_mode & 01;
 }
 
+/**
+ * Assembles into a struct all the file permissions for the three user types.
+ *
+ * @param file_permissions struct to be filled
+ * @param octal_mode octal number representing the permissions
+ */
 static void assemble_permissions(mode_t octal_mode,
                                  FilePermissions *file_permissions) {
     assemble_permissions_user(&file_permissions->other, octal_mode & 0007);
@@ -23,6 +36,12 @@ static void assemble_permissions(mode_t octal_mode,
                               (octal_mode & 0700) >> 6);
 }
 
+/**
+ * Adds changes to the existing permissions.
+ *
+ * @param curr_permissions existing permissions
+ * @param changes flags to be added in the current permissions
+ */
 static void add_permissions(PermissionTypes *curr_permissions,
                             PermissionTypes *changes) {
     curr_permissions->read |= changes->read;
@@ -30,6 +49,12 @@ static void add_permissions(PermissionTypes *curr_permissions,
     curr_permissions->execute |= changes->execute;
 }
 
+/**
+ * Removes changes to the existing permissions.
+ *
+ * @param curr_permissions existing permissions
+ * @param changes flags to be removed in the current permissions
+ */
 static void remove_permissions(PermissionTypes *curr_permissions,
                                const PermissionTypes *changes) {
     if (changes->read)
@@ -40,6 +65,13 @@ static void remove_permissions(PermissionTypes *curr_permissions,
         curr_permissions->execute = false;
 }
 
+/**
+ * Updates current permissions according to the operator received.
+ *
+ * @param curr_permissions existing permissions
+ * @param changes flags to modify current permisisons
+ * @param operator operator
+ */
 static void update_curr_permissions(PermissionTypes *curr_permissions,
                                     PermissionTypes *changes,
                                     const char operator) {
@@ -56,8 +88,14 @@ static void update_curr_permissions(PermissionTypes *curr_permissions,
     }
 }
 
-void update_permissions(const char symbolic_changes[],
-                        FilePermissions *permissions) {
+/**
+ * Updates existing permissions according to the symbolic mode received.
+ *
+ * @param symbolic_changes changes to be made in the existing permissions
+ * @param permissions current permissions
+ */
+static void update_permissions(const char symbolic_changes[],
+                               FilePermissions *permissions) {
     int operator_index = is_permission_operator(symbolic_changes[0]) ? 0 : 1;
 
     PermissionTypes input_permissions;
@@ -102,7 +140,13 @@ mode_t get_octal_mode(FilePermissions *permissions) {
            permissions->other.execute * S_IXOTH;
 }
 
-void parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
+/**
+ * Parses symbolic mode.
+ *
+ * @param symbolic_mode symbolic mode
+ * @param xmodCommand xmod command arguments
+ */
+static void parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
     mode_t curr_mode;
     FileInfo file_info;
     retrieve_file_info(&file_info, xmodCommand->file_dir);
@@ -112,19 +156,32 @@ void parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
     assemble_permissions(curr_mode, &curr_mode_permissions);
 
     const char sep[2] = ",";
-    for (char *i = strtok(symbolic_mode, sep); i != NULL;) {
+    char *pos = NULL;
+    for (char *i = strtok_r(symbolic_mode, sep, &pos); i != NULL;) {
         update_permissions(i, &curr_mode_permissions);
-        i = strtok(NULL, sep);
+        i = strtok_r(NULL, sep, &pos);
     }
 
     xmodCommand->octal_mode = get_octal_mode(&curr_mode_permissions);
 }
 
+/**
+ * Parses octal mode.
+ *
+ * @param mode_str octal mode
+ * @param xmodCommand xmod command arguments
+ */
 static void parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand) {
     mode_t mode = strtoul(mode_str, NULL, 8) & 0777;
     xmodCommand->octal_mode = mode;
 }
 
+/**
+ * Verifies which options are in a xmod command.
+ *
+ * @param options options
+ * @param xmodCommand xmod command arguments
+ */
 static void parse_options(const char *options, XmodCommand *xmodCommand) {
     xmodCommand->options.recursive |= strchr(options, 'R') != NULL;
     xmodCommand->options.verbose |= strchr(options, 'v') != NULL;
@@ -140,7 +197,9 @@ void parse(char **argv, XmodCommand *xmodCommand) {
         parse_options(argv[mode_index++], xmodCommand);
     }
 
-    strcpy(xmodCommand->file_dir, argv[mode_index + 1]);
+    snprintf(xmodCommand->file_dir, sizeof(xmodCommand->file_dir), "%s",
+             argv[mode_index + 1]);
+    strip_trailing_slashes(xmodCommand->file_dir);
 
     if (is_number_arg(argv[mode_index])) {
         parse_octal_mode(argv[mode_index], xmodCommand);

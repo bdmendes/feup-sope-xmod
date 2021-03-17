@@ -1,5 +1,6 @@
-#ifndef SIG_H
-#define SIG_H
+#ifndef SRC_SIGNAL_SIG_H_
+#define SRC_SIGNAL_SIG_H_
+
 #include <stdbool.h>
 
 int set_handler();
@@ -11,3 +12,4 @@ void set_nftot();
 void set_nfmod();
 
 #endif
+

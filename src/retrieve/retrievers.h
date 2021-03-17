@@ -1,5 +1,5 @@
-#ifndef RETRIEVERS_H
-#define RETRIEVERS_H
+#ifndef SRC_RETRIEVE_RETRIEVERS_H_
+#define SRC_RETRIEVE_RETRIEVERS_H_
 
 #include <sys/stat.h>
 
@@ -15,4 +15,4 @@ int retrieve_file_info(FileInfo *file_info, char *file_path);
 
 int retrieve_file_mode(const char *path_name, mode_t *file_mode);
 
-#endif
+#endif  // SRC_RETRIEVE_RETRIEVERS_H_

@@ -21,6 +21,6 @@
         "system_error": "c",
         "stdexcept": "cpp",
         "typeinfo": "cpp",
-        "log.h": "c"
+        "stdbool.h": "c"
     },
 }
