@@ -36,8 +36,6 @@ typedef enum XMOD_EVENT {
 
 int setup_event_logging();
 
-int close_log_file();
-
 long double get_initial_instant();
 
 int log_proc_creat_creat(int argc, char **argv);

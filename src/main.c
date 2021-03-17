@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
 int process(char *argv[]) {
     XmodCommand cmd;
     parse(argv, &cmd);
+    increment_nftot();
 
     FileInfo file_info;
     int success = 0;
@@ -57,21 +58,24 @@ int process(char *argv[]) {
     }
 
     bool changed = cmd.octal_mode != file_info.octal_mode;
-
     if (cmd.options.verbose || (cmd.options.changes && changed)) {
         print_verbose_message(cmd.file_dir, file_info.octal_mode,
                               cmd.octal_mode, changed, success);
     }
-
     if (success == 0 && cmd.options.recursive && file_info.type == DT_DIR) {
         if (traverse(argv, cmd.file_dir, cmd.file_idx) != 0) {
+            success = -1;
             print_verbose_message(cmd.file_dir, file_info.octal_mode,
-                                  cmd.octal_mode, changed, -1);
-            return -1;
+                                  cmd.octal_mode, changed, success);
         }
     }
 
-    return 0;
+    if (success == 0) {
+        increment_nfmod();
+        log_proc_file_mod_creat(cmd.file_dir, file_info.octal_mode,
+                                cmd.octal_mode);
+    }
+    return success;
 }
 
 int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
