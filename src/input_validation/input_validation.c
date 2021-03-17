@@ -6,17 +6,29 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Checks whether the octal number received by input is valid in the xmod
+ * context.
+ *
+ * @param octal_number octal number to be tested
+ * @return true, if it is invalid; false, otherwise
+ */
 static bool is_invalid_octal_number(const char *octal_number) {
-    if (strtoul(octal_number, NULL, 8) > 0777)
+    // xmod octal mode has to start with '0'
+    if (octal_number[0] != '0' || strtoul(octal_number, NULL, 8) > 0777)
         return true;
-
     for (int i = strlen(octal_number) - 1; i >= 0; --i)
         if (octal_number[i] > '7')
             return true;
 
     return false;
 }
-
+/**
+ * Checks whether the symbolic mode received by input is valid.
+ *
+ * @param symbolic_mode symbolic mode to be tested
+ * @return true, if it is invalid; false, otherwise
+ */
 static bool is_invalid_symbolic_mode(char *symbolic_mode) {
     if (has_irregular_coma(symbolic_mode))
         return true;
