@@ -34,11 +34,17 @@ int process(char *argv[]);
 int traverse(char *argv[], const char dir_path[], unsigned file_idx);
 
 int main(int argc, char *argv[]) {
+    setup_event_logging();
+    log_proc_creat_creat(argc, argv);
+    if (setup_signal_handler() != 0) {
+        fprintf(stderr, "setup signal handling");
+    }
     if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
+        log_proc_exit_creat(EXIT_FAILURE);
         exit(EXIT_FAILURE);
     }
-    // log process creation here; include after logger functions are ready
     process(argv);
+    log_proc_exit_creat(0);
 }
 
 int process(char *argv[]) {

@@ -3,14 +3,15 @@
 
 #include <stdbool.h>
 
-void handler_SIGINT(int signo);
+int setup_signal_handler();
 
-void set_file(char* file);
+void set_nftot();
+
+void set_nfmod();
 
 void increment_nftot();
 
 void increment_nfmod();
 
-bool get_running();
+#endif // SRC_SIGNAL_SIG_H_
 
-#endif  // SRC_SIGNAL_SIG_H_
