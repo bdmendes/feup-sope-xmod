@@ -34,12 +34,12 @@ int process(char *argv[]);
 int traverse(char *argv[], const char dir_path[], unsigned file_idx);
 
 int main(int argc, char *argv[]) {
-    int is_setup = setup_event_logging();
+    setup_event_logging();
     log_proc_creat_creat(argc, argv);
     if (setup_signal_handler() != 0) {
         fprintf(stderr, "setup signal handling");
     }
-    if (is_invalid_input(argv, argc) || is_setup!= 0) {
+    if (is_invalid_input(argv, argc)) {
         log_proc_exit_creat(EXIT_FAILURE);
         exit(EXIT_FAILURE);
     }
