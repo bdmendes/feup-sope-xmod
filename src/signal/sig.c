@@ -16,7 +16,6 @@
 static char* file_dir;
 static unsigned int nftot = 0;
 static unsigned int nfmod = 0;
-static bool running = true;
 
 void handler(int signo){
 	if(signo == SIGINT){
@@ -42,9 +41,6 @@ void handler(int signo){
 	}
 	else{
 		log_proc_sign_recev_creat(strsignal(signo));
-		//a colocar código de log
-		/*sig.signal_received = strsignal(signo);
-		log_event(SIGNAL_RECV, &sig);*/
 	}
 
 }
@@ -56,7 +52,7 @@ int set_handler(){
 		if(i!=SIGKILL && i!=SIGSTOP){
 			if (sigemptyset(&smask)==-1){
 				perror ("sigsetfunctions");
-				if(i==SIGINT) return -1;  //it will be really bad if we caan't treat the 'main' signal
+				if(i==SIGINT) return -1;  //it will be really bad if we can't treat the 'main' signal
 			}
 				
 			new.sa_handler = handler;
@@ -65,7 +61,7 @@ int set_handler(){
 
 			if(sigaction(i, &new, &old) == -1){
 				perror ("sigaction");
-				if(i==SIGINT) return -1;  //it will be really bad if we caan't treat the 'main' signal
+				if(i==SIGINT) return -1;  //it will be really bad if we can't treat the 'main' signal
 			}
 		}
 	}
@@ -86,8 +82,4 @@ void increment_nftot(){
 
 void increment_nfmod(){
 	nfmod += 1;
-}
-
-bool get_running(){
-	return running;
 }
