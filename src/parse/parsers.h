@@ -54,8 +54,17 @@ typedef struct {
      * Struct which encapsulates the options' flags.
      */
     struct {
+        /**
+         * changes flag
+        */
         bool changes;
+        /**
+         * verbose flag
+        */
         bool verbose;
+        /**
+         * recursive flag
+        */
         bool recursive;
     } options;
 
