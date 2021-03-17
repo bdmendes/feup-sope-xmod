@@ -35,7 +35,6 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx);
 
 int main(int argc, char *argv[]) {
     setup_event_logging();
-    set_log_file("nckdjsnc");
     if (set_handler() != 0)
         printf("problems\n");
     int i = fork();
