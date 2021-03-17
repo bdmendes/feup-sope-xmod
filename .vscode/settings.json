@@ -20,6 +20,7 @@
         "ostream": "c",
         "system_error": "c",
         "stdexcept": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "log.h": "c"
     },
 }

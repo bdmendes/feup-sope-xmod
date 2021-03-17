@@ -20,11 +20,37 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx);
 int process(char *argv[]);
 
 int main(int argc, char *argv[]) {
-    if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
-        exit(EXIT_FAILURE);
+    setup_event_logging();
+    set_log_file("nckdjsnc");
+    if (set_handler() != 0)
+        printf("problems\n");
+    int i = fork();
+    if (i != 0) {
+        for (int j = 0; j < 30; j++) {
+            printf("hello parent original %d %d\n", getpid(), getpgrp());
+            sleep(5);
+        }
+        wait(NULL);
+    } else {
+        int d = fork();
+        if (d != 0) {
+            for (int j = 0; j < 30; j++) {
+                printf("hello kid original %d %d\n", getpid(), getpgrp());
+                sleep(5);
+            }
+            wait(NULL);
+        } else {
+            for (int j = 0; j < 30; j++) {
+                printf("hello kid kid %d %d\n", getpid(), getpgrp());
+                sleep(5);
+            }
+        }
     }
-    // log process creation here; include after logger functions are ready
-    process(argv);
+    /*     if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
+            exit(EXIT_FAILURE);
+        }
+        // log process creation here; include after logger functions are ready
+        process(argv); */
 }
 
 int process(char *argv[]) {

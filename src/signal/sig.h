@@ -4,7 +4,7 @@
 
 int set_handler();
 
-void set_file(char* file);
+void set_log_file(char* file);
 
 void set_nftot();
 
