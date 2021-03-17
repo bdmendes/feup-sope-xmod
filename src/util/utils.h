@@ -31,6 +31,7 @@ bool is_number_arg(char *argument);
  * Verifies if the argument is composed by permissions flags.
  * 
  * @param argument argument
+ * @param start_index where the string starts to be processed
  * @return true, if the argument is composed by permissions flags; false, otherwise
 */
 bool has_permissions_flags(const char *argument, int start_index);
