@@ -65,6 +65,8 @@ int process(char *argv[]) {
 
     if (success == 0 && cmd.options.recursive && file_info.type == DT_DIR) {
         if (traverse(argv, cmd.file_dir, cmd.file_idx) != 0) {
+            print_verbose_message(cmd.file_dir, file_info.octal_mode,
+                                  cmd.octal_mode, changed, -1);
             return -1;
         }
     }
@@ -75,7 +77,8 @@ int process(char *argv[]) {
 int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
     DIR *dp = opendir(dir_path);
     if (dp == NULL) {
-        perror("could not open directory");
+        fprintf(stderr, "xmod: cannot read directory %s: %s\n", dir_path,
+                strerror(errno));
         return -1;
     }
 
