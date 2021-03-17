@@ -30,7 +30,7 @@ static bool is_invalid_symbolic_mode(char *symbolic_mode) {
 
         int operator_index = 0;
         if (!is_permission_operator(i[0])) {
-            if (!is_user_flag(i[0]))
+            if (strlen(i) < 3 || !is_user_flag(i[0]))
                 return true;
             operator_index++;
         }
