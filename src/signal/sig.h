@@ -3,13 +3,11 @@
 
 #include <stdbool.h>
 
-int set_handler();
-
-void set_log_file(char* file);
+int setup_signal_handler();
 
 void set_nftot();
 
 void set_nfmod();
 
-#endif
+#endif // SRC_SIGNAL_SIG_H_
 
