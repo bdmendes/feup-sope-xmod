@@ -20,6 +20,7 @@ void handler(int signo) {
         bool is_group_leader = getpid() == getpgrp();
         if (is_group_leader) {
             for (;;) {
+                fflush(stdout);
                 printf("\n%d ; %s ; %d ; %d \n", getpid(), file_dir, nftot,
                        nfmod);
                 printf("Do you wish to continue? [Y/N]\n");

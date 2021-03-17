@@ -1,4 +1,5 @@
 #include "log.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,8 +74,10 @@ static int log_event(XMOD_EVENT event, const EventLog *inf) {
     memset(&lock, 0, sizeof(lock));
     lock.l_type = F_WRLCK;
     if (fcntl(log_fd, F_SETLKW, &lock) == -1) {
-        perror("log file log acquire");
-        return -1;
+        if (errno != EINTR) {
+            perror("log file log acquire");
+            return -1;
+        }
     }
 
     // Write assembled log to file
@@ -84,8 +87,10 @@ static int log_event(XMOD_EVENT event, const EventLog *inf) {
     // Release the lock for writing
     lock.l_type = F_UNLCK;
     if (fcntl(log_fd, F_SETLKW, &lock) == -1) {
-        perror("log file lock release");
-        return -1;
+        if (errno != EINTR) {
+            perror("log file log release");
+            return -1;
+        }
     }
 
     return 0;
