@@ -21,6 +21,7 @@
         "system_error": "c",
         "stdexcept": "cpp",
         "typeinfo": "cpp",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "condition_variable": "c"
     },
 }
