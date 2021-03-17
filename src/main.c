@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     process(argv);
-    fflush(stdout);
     log_proc_exit_creat(0);
 }
 

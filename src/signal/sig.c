@@ -19,26 +19,20 @@ void handler(int signo) {
         log_proc_sign_recev_creat("SIGINT");
         bool is_group_leader = getpid() == getpgrp();
         if (is_group_leader) {
-            for (;;) {
-                fflush(stdout);
-                printf("\n%d ; %s ; %d ; %d \n", getpid(), file_dir, nftot,
-                       nfmod);
-                printf("Do you wish to continue? [Y/N]\n");
-                fflush(stdout);
-                char buf[2];
-                scanf("%c", buf);
-                if (buf[0] == 'N' || buf[0] == 'n') {
-                    log_proc_sign_sent_creat("SIGKILL", 0);
-                    kill(0, SIGKILL);
-                    break;
-                } else if (buf[0] == 'Y' || buf[0] == 'y') {
-                    log_proc_sign_sent_creat("SIGUSR1", 0);
-                    kill(0, SIGUSR1);
-                    break;
-                }
-                while (getchar() != '\n')
-                    ;
+            printf("\n%d ; %s ; %d ; %d \n", getpid(), file_dir, nftot, nfmod);
+            printf("Do you wish to continue? [Y/N]\n");
+            fflush(stdin);
+            char answer = getc(stdin);
+            if (answer == 'N' || answer == 'n') {
+                log_proc_sign_sent_creat("SIGKILL", 0);
+                kill(0, SIGKILL);
+            } else {
+                log_proc_sign_sent_creat("SIGUSR1", 0);
+                kill(0, SIGUSR1);
             }
+            fflush(stdin);
+            while (getc(stdin) != '\n')
+                ;
         } else {
             pause();
         }
