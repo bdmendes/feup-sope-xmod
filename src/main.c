@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     process(argv);
+    fflush(stdout);
     log_proc_exit_creat(0);
 }
 
@@ -51,6 +52,7 @@ int process(char *argv[]) {
     XmodCommand cmd;
     parse(argv, &cmd);
     increment_nftot();
+    set_sig_file_path(cmd.file_dir);
 
     FileInfo file_info;
     int success = 0;
@@ -117,11 +119,8 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
                     execvp(argv[0], argv);
                 } else if (id != -1) {
                     int status;
-                    if (wait(&status) == -1) {
-                        perror("could not wait for child process");
-                        closedir(dp);
-                        return -1;
-                    } else if (status != 0) {
+                    wait(&status);
+                    if (!WIFEXITED(status) && !WIFSIGNALED(status)) {
                         perror("child process exited abnormally");
                         closedir(dp);
                         return -1;

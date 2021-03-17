@@ -9,13 +9,11 @@
 #include <unistd.h>
 
 static long double time_init;
-static char *log_file_path;
+static int log_fd;
 static bool make_logs = true;
 static bool is_group_leader = true;
 
 static int log_event(XMOD_EVENT event, const EventLog *inf);
-static int close_log_file(int fd);
-static int open_log_file(bool append);
 
 static double get_milisecs() {
     struct timeval tim;
@@ -70,37 +68,34 @@ static int log_event(XMOD_EVENT event, const EventLog *inf) {
             return -1;
     }
 
-    // Open log file
-    int log_fd = open_log_file(true);
-    if (log_fd == -1)
-        return -1;
-
     // Lock file for writing
     struct flock lock;
     memset(&lock, 0, sizeof(lock));
     lock.l_type = F_WRLCK;
     if (fcntl(log_fd, F_SETLKW, &lock) == -1) {
         perror("log file log acquire");
+        return -1;
     }
 
     // Write assembled log to file
+    lseek(log_fd, 0, SEEK_END);
     write(log_fd, buf, strlen(buf));
 
     // Release the lock for writing
     lock.l_type = F_UNLCK;
     if (fcntl(log_fd, F_SETLKW, &lock) == -1) {
         perror("log file lock release");
+        return -1;
     }
 
-    // Close log file
-    return close_log_file(log_fd);
+    return 0;
 }
 
 int setup_event_logging() {
     is_group_leader = getpid() == getpgrp();
 
     // Get log file path
-    log_file_path = getenv(LOG_FILE_PATH_ENV);
+    char *log_file_path = getenv(LOG_FILE_PATH_ENV);
     if (log_file_path == NULL) {
         make_logs = false;
         return 0;
@@ -122,30 +117,19 @@ int setup_event_logging() {
     }
 
     // Parent opens the file and truncates it once
-    if (is_group_leader) {
-        if (open_log_file(false) == -1)
-            return -1;
-        if (close_log_file(false) == -1)
-            return -1;
+    log_fd = open(log_file_path,
+                  O_WRONLY | (is_group_leader ? O_CREAT | O_TRUNC : O_APPEND));
+    if (log_fd == -1) {
+        perror("log file open");
+        make_logs = false;
+        return -1;
     }
 
     make_logs = true;
     return 0;
 }
 
-static int open_log_file(bool append) {
-    int fd;
-    fd = open(log_file_path,
-              O_WRONLY | (!append ? O_CREAT | O_TRUNC : O_APPEND), S_IRWXU);
-    if (fd == -1) {
-        perror("log file open");
-        make_logs = false;
-        return -1;
-    }
-    return fd;
-}
-
-static int close_log_file(int fd) {
+int close_log_file(int fd) {
     if (close(fd) != 0) {
         perror("log file close");
         return -1;

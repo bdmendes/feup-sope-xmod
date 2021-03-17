@@ -13,5 +13,7 @@ void increment_nftot();
 
 void increment_nfmod();
 
+void set_sig_file_path(char path[]);
+
 #endif // SRC_SIGNAL_SIG_H_
 

@@ -10,7 +10,7 @@
 #include "../log/log.h"
 #include "sig.h"
 
-static char *file_dir;
+static char file_dir[PATH_MAX];
 static unsigned int nftot = 0;
 static unsigned int nfmod = 0;
 
@@ -39,16 +39,14 @@ void handler(int signo) {
                     ;
             }
         } else {
-            if (pause() == -1) {
-                perror("signal handling pause");
-            }
+            pause();
         }
     } else {
         log_proc_sign_recev_creat(strsignal(signo));
     }
 }
 
-int setup_signal_handler(char curr_path[]) {
+int setup_signal_handler() {
     struct sigaction new, old;
     sigset_t smask;
     for (int i = 1; i < NUMBER_OF_SIG; i++) {
@@ -69,8 +67,6 @@ int setup_signal_handler(char curr_path[]) {
 
     nftot = 0;
     nfmod = 0;
-    file_dir = curr_path;
-
     return 0;
 }
 
@@ -80,4 +76,8 @@ void increment_nftot() {
 
 void increment_nfmod() {
     nfmod += 1;
+}
+
+void set_sig_file_path(char path[]) {
+    snprintf(file_dir, sizeof(file_dir), "%s", path);
 }
