@@ -30,6 +30,12 @@ typedef struct {
 
 void parse(char **argv, XmodCommand *xmodCommand);
 
+/**
+    * Assembles an octal number from a struct with all the three users' permissions.
+    * 
+    * @param permissions struct with all the three users' permissions.
+    * @return octal number
+*/
 mode_t get_octal_mode(FilePermissions *permissions);
 
 #endif
