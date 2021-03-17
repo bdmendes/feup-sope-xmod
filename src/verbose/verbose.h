@@ -5,19 +5,19 @@
 #include <sys/types.h>
 
 /**
- * @brief the three kinds of user that can interact with a file (the one who
+ * @brief types of user that can interact with a file (the one who
  * created it, the ones in the same group, others)
  *
  */
 enum XMOD_USER_TYPE { OWNER, GROUP, OTHER };
 
 /**
- * @brief
+ * @brief permissions a user can have on a file
  *
  */
 enum XMOD_PERMISSION { READ, WRITE, EXECUTE };
 
-#define NUMBER_OF_PERM_FIELDS 9
+#define NUMBER_OF_PERM_FIELDS 9 /// number of fields in the mode
 
 /**
  * @brief Print to standard output the corresponding message (mode changed, mode
