@@ -20,16 +20,20 @@ static bool running = true;
 
 void handler(int signo){
 	if(signo == SIGINT){
-		if(getpid() != getpgrp()){
+		log_proc_sign_recev_creat("SIGINT");
+		if(getpid() == getpgrp()){
 			printf("\n%d ; %s ; %d ; %d \n",  getpid(), file_dir, nftot, nfmod);
 			printf("Do you wish to continue? [Y/N]\n");
 			char buf[100];
 			scanf("%c", buf);
 			if(buf[0] != 'y' && buf[0] != 'Y'){
-				killpg(getpgrp(), SIGKILL);
+				kill(0, SIGKILL);
+				log_proc_sign_sent_creat("SIGKILL", 0);
 			}
-			else 
-				killpg(getpgrp(), SIGCONT);
+			else{ 
+				kill(0, SIGCONT);
+				log_proc_sign_sent_creat("SIGCONT", 0);
+			}
 			while ( getchar() != '\n' );
 		}
 		else {
@@ -37,6 +41,7 @@ void handler(int signo){
 		}
 	}
 	else{
+		log_proc_sign_recev_creat(strsignal(signo));
 		//a colocar código de log
 		/*sig.signal_received = strsignal(signo);
 		log_event(SIGNAL_RECV, &sig);*/
