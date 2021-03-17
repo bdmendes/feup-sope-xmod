@@ -1,5 +1,5 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef SRC_LOG_LOG_H_
+#define SRC_LOG_LOG_H_
 
 #include <dirent.h>
 #include <stdbool.h>
@@ -34,8 +34,6 @@ typedef enum XMOD_EVENT {
     FILE_MODF
 } XMOD_EVENT;
 
-int log_event(XMOD_EVENT event, const EventLog *inf);
-
 int setup_event_logging();
 
 int close_log_file();
@@ -52,4 +50,4 @@ int log_proc_sign_sent_creat(char* sign_sent, pid_t pid_sent);
 
 int log_proc_file_mod_creat(char *file_name, mode_t old_perms, mode_t new_perms);
 
-#endif
+#endif  // SRC_LOG_LOG_H_

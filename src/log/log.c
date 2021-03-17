@@ -1,23 +1,86 @@
-#include "log.h"
+#include "./log.h"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/file.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#include <sys/file.h>
 
 static long double time_init;
 static int log_fd = -1;
 static bool make_logs = true;
 
+static int log_event(XMOD_EVENT event, const EventLog *inf);
+
 static long double get_milisecs() {
     struct timeval tim;
     gettimeofday(&tim, 0);
-    long sec = tim.tv_sec;
-    long microsec = tim.tv_usec;
+    double sec = tim.tv_sec;
+    double microsec = tim.tv_usec;
     return sec * 1000.0 + microsec / 1000.0;
+}
+
+static int log_event(XMOD_EVENT event, const EventLog *inf) {
+    if (!make_logs)
+        return -1;
+    char buf[PATH_MAX];
+
+    // time
+    long double time = get_milisecs();
+    long double time_passed_mili_secs = time - time_init;
+    snprintf(buf, sizeof(buf), "%Lf ; ", time_passed_mili_secs);
+
+    // pid
+    pid_t pid = getpid();
+    snprintf(buf + strlen(buf), sizeof(buf), "%d ; ", pid);
+
+    // event and info
+    switch (event) {
+        case PROC_CREAT:
+            snprintf(buf + strlen(buf), sizeof(buf), "PROC_CREAT ;");
+            for (int i = 0; i < inf->arg.argc_info; i++) {
+                snprintf(buf + strlen(buf), sizeof(buf), " %s",
+                         inf->arg.argv_info[i]);
+            }
+            snprintf(buf + strlen(buf), sizeof(buf), "%s", "\n");
+            break;
+        case PROC_EXIT:
+            snprintf(buf + strlen(buf), sizeof(buf), "PROC_EXIT ; %d\n",
+                     inf->exit_code);
+            break;
+        case SIGNAL_RECV:
+            snprintf(buf + strlen(buf), sizeof(buf), "SIGNAL_RECV ; %s\n",
+                     inf->signal_received);
+            break;
+        case SIGNAL_SENT:
+            snprintf(buf + strlen(buf), sizeof(buf), "SIGNAL_SENT ; %s : %d\n",
+                     inf->sent.signal_sent, inf->sent.pid_sent);
+            break;
+        case FILE_MODF:
+            snprintf(buf + strlen(buf), sizeof(buf),
+                     "FILE_MODF ; %s : %o : %o\n", inf->perms.file_name,
+                     inf->perms.old_perms, inf->perms.new_perms);
+            break;
+        default:
+            return -1;
+    }
+
+    int flck = flock(log_fd, LOCK_EX);
+    if (flck != 0) {
+        perror("flock");
+        return -2;
+    }
+    write(log_fd, buf, strlen(buf));
+
+    flck = flock(log_fd, LOCK_UN);
+    if (flck != 0) {
+        perror("flock");
+        return -2;
+    }
+
+    return 0;
 }
 
 int setup_event_logging() {
@@ -64,66 +127,6 @@ int setup_event_logging() {
     return 0;
 }
 
-int log_event(XMOD_EVENT event, const EventLog *inf) {
-    if (!make_logs)
-        return -1;
-    char buf[PATH_MAX];
-    char *curr_buf = buf;
-
-    // time
-    double long time = get_milisecs();
-    double long time_passed_mili_secs = time - time_init;
-    curr_buf += sprintf(curr_buf, "%Lf ; ", time_passed_mili_secs);
-
-    // pid
-    pid_t pid = getpid();
-    curr_buf += sprintf(curr_buf, "%d ; ", pid);
-
-    // event and info
-    switch (event) {
-        case PROC_CREAT:
-            curr_buf += sprintf(curr_buf, "PROC_CREAT ;");
-            for (int i = 0; i < inf->arg.argc_info; i++) {
-                curr_buf += sprintf(curr_buf, " %s", inf->arg.argv_info[i]);
-            }
-            curr_buf += sprintf(curr_buf, "\n");
-            break;
-        case PROC_EXIT:
-            curr_buf += sprintf(curr_buf, "PROC_EXIT ; %d\n", inf->exit_code);
-            break;
-        case SIGNAL_RECV:
-            curr_buf +=
-                sprintf(curr_buf, "SIGNAL_RECV ; %s\n", inf->signal_received);
-            break;
-        case SIGNAL_SENT:
-            curr_buf += sprintf(curr_buf, "SIGNAL_SENT ; %s : %d\n",
-                                inf->sent.signal_sent, inf->sent.pid_sent);
-            break;
-        case FILE_MODF:
-            curr_buf += sprintf(curr_buf, "FILE_MODF ; %s : %o : %o\n",
-                                inf->perms.file_name, inf->perms.old_perms,
-                                inf->perms.new_perms);
-            break;
-        default:
-            return -1;
-    }
-
-    int flck = flock(log_fd, LOCK_EX);
-    if(flck != 0){ 
-        perror("flock");
-        return -2;
-    }
-    write(log_fd, buf, strlen(buf));
-
-    flck = flock(log_fd, LOCK_UN);
-    if(flck != 0){ 
-        perror("flock");
-        return -2;
-    }
-
-    return 0;
-}
-
 int close_log_file() {
     if (close(log_fd) != 0) {
         perror("log file close");
@@ -136,33 +139,34 @@ long double get_initial_instant() {
     return time_init;
 }
 
-int log_proc_creat_creat(int argc, char **argv){
+int log_proc_creat_creat(int argc, char **argv) {
     EventLog args;
     args.arg.argc_info = argc;
     args.arg.argv_info = argv;
     return log_event(PROC_CREAT, &args);
 }
 
-int log_proc_exit_creat(int exit_code){
+int log_proc_exit_creat(int exit_code) {
     EventLog args;
     args.exit_code = exit_code;
     return log_event(PROC_EXIT, &args);
 }
 
-int log_proc_sign_recev_creat(char* sign_receiv){
+int log_proc_sign_recev_creat(char *sign_receiv) {
     EventLog args;
     args.signal_received = sign_receiv;
     return log_event(SIGNAL_RECV, &args);
 }
 
-int log_proc_sign_sent_creat(char* sign_sent, pid_t pid_sent){
+int log_proc_sign_sent_creat(char *sign_sent, pid_t pid_sent) {
     EventLog args;
     args.sent.signal_sent = sign_sent;
     args.sent.pid_sent = pid_sent;
     return log_event(SIGNAL_SENT, &args);
 }
 
-int log_proc_file_mod_creat(char *file_name, mode_t old_perms, mode_t new_perms){
+int log_proc_file_mod_creat(char *file_name, mode_t old_perms,
+                            mode_t new_perms) {
     EventLog args;
     args.perms.file_name = file_name;
     args.perms.old_perms = old_perms;

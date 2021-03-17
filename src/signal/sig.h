@@ -1,8 +1,7 @@
-#ifndef SIG_H
-#define SIG_H
-#include <stdbool.h>
+#ifndef SRC_SIGNAL_SIG_H_
+#define SRC_SIGNAL_SIG_H_
 
-int set_handler_SIGINT();
+#include <stdbool.h>
 
 void handler_SIGINT(int signo);
 
@@ -14,4 +13,4 @@ void set_nfmod();
 
 bool get_running();
 
-#endif
+#endif  // SRC_SIGNAL_SIG_H_
