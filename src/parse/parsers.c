@@ -112,7 +112,7 @@ void parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand) {
     assemble_permissions(curr_mode, &curr_mode_permissions);
 
     const char sep[2] = ",";
-    char *pos;
+    char *pos = NULL;
     for (char *i = strtok_r(symbolic_mode, sep, &pos); i != NULL;) {
         update_permissions(i, &curr_mode_permissions);
         i = strtok_r(NULL, sep, &pos);

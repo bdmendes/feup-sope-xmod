@@ -90,7 +90,8 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
             FileInfo file_info;
             if (retrieve_file_info(&file_info, new_path) != 0) {
                 perror("could not retrieve file info");
-                continue;
+                closedir(dp);
+                return -1;
             }
 
             if (file_info.type == DT_DIR) {
@@ -102,9 +103,19 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
                     setenv(LOG_PARENT_INITIAL_TIME_ENV, time_str, 1);
                     execvp(argv[0], argv);
                 } else if (id != -1) {
-                    wait(NULL);
+                    int status;
+                    if (wait(&status) == -1) {
+                        perror("could not wait for child process");
+                        closedir(dp);
+                        return -1;
+                    } else if (status != 0) {
+                        perror("child process exited abnormally");
+                        closedir(dp);
+                        return -1;
+                    }
                 } else {
                     perror("fork failed");
+                    closedir(dp);
                     return -1;
                 }
             } else if (file_info.type != DT_LNK) {
