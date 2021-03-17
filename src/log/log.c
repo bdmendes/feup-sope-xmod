@@ -29,8 +29,6 @@ static int log_event(XMOD_EVENT event, const EventLog *inf) {
     if (!make_logs)
         return -1;
     char buf[PATH_MAX];
-    memset(buf, 0, sizeof(buf));
-    printf("making log for file: %s\n", inf->perms.file_name);
 
     // time
     long double time = get_milisecs();
