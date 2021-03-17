@@ -8,10 +8,10 @@
 #include <stdlib.h>
 
 /**
-    * Assembles, from an octal number, a struct with the file permissions for an user type.
-    * 
-    * @param permissions struct to be filled
-    * @param octal_mode octal number representing the permissions
+* Assembles, from an octal number, a struct with the file permissions for an user type.
+* 
+* @param permissions struct to be filled
+* @param octal_mode octal number representing the permissions
 */
 static void assemble_permissions_user(PermissionTypes *permissions,
                                       mode_t octal_mode)
@@ -22,10 +22,10 @@ static void assemble_permissions_user(PermissionTypes *permissions,
 }
 
 /**
-    * Assembles into a struct all the file permissions for the three user types.
-    * 
-    * @param file_permissions struct to be filled
-    * @param octal_mode octal number representing the permissions
+* Assembles into a struct all the file permissions for the three user types.
+* 
+* @param file_permissions struct to be filled
+* @param octal_mode octal number representing the permissions
 */
 static void assemble_permissions(mode_t octal_mode,
                                  FilePermissions *file_permissions)
@@ -38,10 +38,10 @@ static void assemble_permissions(mode_t octal_mode,
 }
 
 /**
-    * Adds changes to the existing permissions.
-    * 
-    * @param curr_permissions existing permissions
-    * @param changes flags to be added in the current permissions
+* Adds changes to the existing permissions.
+* 
+* @param curr_permissions existing permissions
+* @param changes flags to be added in the current permissions
 */
 static void add_permissions(PermissionTypes *curr_permissions,
                             PermissionTypes *changes)
@@ -52,10 +52,10 @@ static void add_permissions(PermissionTypes *curr_permissions,
 }
 
 /**
-    * Removes changes to the existing permissions.
-    * 
-    * @param curr_permissions existing permissions
-    * @param changes flags to be removed in the current permissions
+* Removes changes to the existing permissions.
+* 
+* @param curr_permissions existing permissions
+* @param changes flags to be removed in the current permissions
 */
 static void remove_permissions(PermissionTypes *curr_permissions,
                                const PermissionTypes *changes)
@@ -69,11 +69,11 @@ static void remove_permissions(PermissionTypes *curr_permissions,
 }
 
 /**
-    * Updates current permissions according to the operator received.
-    * 
-    * @param curr_permissions existing permissions
-    * @param changes flags to modify current permisisons
-    * @param operator operator
+* Updates current permissions according to the operator received.
+* 
+* @param curr_permissions existing permissions
+* @param changes flags to modify current permisisons
+* @param operator operator
 */
 static void update_curr_permissions(PermissionTypes *curr_permissions,
                                     PermissionTypes *changes,
@@ -94,10 +94,10 @@ static void update_curr_permissions(PermissionTypes *curr_permissions,
 }
 
 /**
-    * Updates existing permissions according to the symbolic mode received.
-    * 
-    * @param symbolic_changes changes to be made in the existing permissions
-    * @param permissions current permissions
+* Updates existing permissions according to the symbolic mode received.
+* 
+* @param symbolic_changes changes to be made in the existing permissions
+* @param permissions current permissions
 */
 static void update_permissions(const char symbolic_changes[],
                                FilePermissions *permissions)
@@ -149,10 +149,10 @@ mode_t get_octal_mode(FilePermissions *permissions)
 }
 
 /**
-    * Parses symbolic mode.
-    * 
-    * @param symbolic_mode symbolic mode
-    * @param xmodCommand xmod command arguments
+* Parses symbolic mode.
+* 
+* @param symbolic_mode symbolic mode
+* @param xmodCommand xmod command arguments
 */
 static void parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand)
 {
@@ -175,10 +175,10 @@ static void parse_symbolic_mode(char *symbolic_mode, XmodCommand *xmodCommand)
 }
 
 /**
-    * Parses octal mode.
-    * 
-    * @param mode_str octal mode
-    * @param xmodCommand xmod command arguments
+* Parses octal mode.
+* 
+* @param mode_str octal mode
+* @param xmodCommand xmod command arguments
 */
 static void parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand)
 {
@@ -186,6 +186,12 @@ static void parse_octal_mode(const char *mode_str, XmodCommand *xmodCommand)
     xmodCommand->octal_mode = mode;
 }
 
+/**
+* Verifies which options are in a xmod command.
+* 
+* @param options options
+* @param xmodCommand xmod command arguments
+*/
 static void parse_options(const char *options, XmodCommand *xmodCommand)
 {
     xmodCommand->options.recursive |= strchr(options, 'R') != NULL;
