@@ -9,7 +9,7 @@ bool is_ref_path(char *path)
 }
 
 /**
- * Verifies if the argument is an option flag.
+ * @brief Verifies if the argument is an option flag.
  * 
  * @param c option flag
  * @return true, if the argument is an option flag; false, otherwise
@@ -42,7 +42,7 @@ bool is_number_arg(char *argument)
 }
 
 /**
- * Verifies if the argument is an pemrission flag.
+ * @brief Verifies if the argument is an pemrission flag.
  * 
  * @param c pemrission flag
  * @return true, if the argument is an pemrission flag; false, otherwise
@@ -95,9 +95,12 @@ bool has_irregular_coma(const char str[])
     return false;
 }
 
-void strip_trailing_slashes(char str[]) {
-    for (int i = strlen(str) - 1; i >= 0; i--) {
-        if (str[i] != '/') {
+void strip_trailing_slashes(char str[])
+{
+    for (int i = strlen(str) - 1; i >= 0; i--)
+    {
+        if (str[i] != '/')
+        {
             str[i + 1] = '\0';
             return;
         }
