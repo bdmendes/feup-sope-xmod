@@ -134,8 +134,8 @@ int setup_event_logging() {
     return 0;
 }
 
-int close_log_file(int fd) {
-    if (close(fd) != 0) {
+int close_log_file() {
+    if (close(log_fd) != 0) {
         perror("log file close");
         return -1;
     }

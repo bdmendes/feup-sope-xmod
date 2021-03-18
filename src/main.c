@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) {
     }
     process(argv);
     log_proc_exit_creat(0);
+    close_log_file();
 }
 
 int process(char *argv[]) {
