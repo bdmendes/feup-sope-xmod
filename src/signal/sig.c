@@ -2,6 +2,7 @@
 
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -21,7 +22,6 @@ void handler(int signo) {
         if (is_group_leader) {
             printf("\n%d ; %s ; %d ; %d \n", getpid(), file_dir, nftot, nfmod);
             printf("Do you wish to continue? [Y/N]\n");
-            fflush(stdin);
             char answer = getc(stdin);
             if (answer == 'N' || answer == 'n') {
                 log_proc_sign_sent_creat("SIGKILL", 0);
@@ -30,7 +30,6 @@ void handler(int signo) {
                 log_proc_sign_sent_creat("SIGUSR1", 0);
                 kill(0, SIGUSR1);
             }
-            fflush(stdin);
             while (getc(stdin) != '\n')
                 ;
         } else {
@@ -60,8 +59,24 @@ int setup_signal_handler() {
         }
     }
 
-    nftot = 0;
-    nfmod = 0;
+    bool is_group_leader = getpid() == getppid();
+    if (is_group_leader) {
+        nftot = 0;
+        nfmod = 0;
+    } else {
+        char *nftot_str = getenv(NFTOT_FROM_PARENT);
+        if (nftot_str == NULL) {
+            nftot = 0;
+        } else {
+            printf("getting juicy\n");
+        }
+        char *nfmod_str = getenv(NFMOD_FROM_PARENT);
+        if (nfmod_str == NULL) {
+            nfmod = 0;
+        } else {
+            nfmod = strtoul(nfmod_str, NULL, 10);
+        }
+    }
     return 0;
 }
 
@@ -71,6 +86,14 @@ void increment_nftot() {
 
 void increment_nfmod() {
     nfmod += 1;
+}
+
+unsigned get_nftot() {
+    return nftot;
+}
+
+unsigned get_nfmod() {
+    return nfmod;
 }
 
 void set_sig_file_path(char path[]) {

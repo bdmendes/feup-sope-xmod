@@ -114,7 +114,13 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
                     char time_str[PATH_MAX];
                     snprintf(time_str, sizeof(time_str), "%Lf",
                              get_initial_instant());
+                    char nftot_str[PATH_MAX];
+                    snprintf(nftot_str, sizeof(nftot_str), "%u", get_nftot());
+                    char nfmod_str[PATH_MAX];
+                    snprintf(nfmod_str, sizeof(nfmod_str), "%u", get_nfmod());
                     setenv(LOG_PARENT_INITIAL_TIME_ENV, time_str, 1);
+                    setenv(NFTOT_FROM_PARENT, nftot_str, 1);
+                    setenv(NFMOD_FROM_PARENT, nfmod_str, 1);
                     execvp(argv[0], argv);
                 } else if (id != -1) {
                     int status;
