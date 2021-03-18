@@ -3,8 +3,25 @@
 #include <stdio.h>
 #include <string.h>
 
+/**
+ * @brief Save the information about a file's mode (and therefore the type) and
+ * the relative path to an appropriate structure
+ *
+ * @param file_info where the values are to be saved
+ * @param mode file's permission mode (in octal)
+ * @param path file's relative path
+ */
 static void assemble_file_info(FileInfo *file_info, const mode_t mode,
                                const char *path);
+
+/**
+ * @brief Retrieve a file's permission mode given it's relative path
+ *
+ * @param path_name relative path to the file
+ * @param file_mode mode read from the file
+ * @return int 0 if no errors occured and -1 otherwise
+ */
+static int retrieve_file_mode(const char *path_name, mode_t *file_mode);
 
 int retrieve_file_info(FileInfo *file_info, char *file_path) {
     memset(file_info, 0, sizeof(*file_info));
@@ -38,10 +55,10 @@ static void assemble_file_info(FileInfo *file_info, const mode_t mode,
         file_info->type = DT_UNKNOWN;
 }
 
-int retrieve_file_mode(const char *path_name, mode_t *file_mode) {
+static int retrieve_file_mode(const char *path_name, mode_t *file_mode) {
     struct stat sb;
     if (stat(path_name, &sb) < 0) {
-        return 1;
+        return -1;
     }
     *file_mode = sb.st_mode;
     return 0;
