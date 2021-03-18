@@ -68,7 +68,7 @@ int setup_signal_handler() {
         if (nftot_str == NULL) {
             nftot = 0;
         } else {
-            printf("getting juicy\n");
+            nftot = strtoul(nftot_str, NULL, 10);
         }
         char *nfmod_str = getenv(NFMOD_FROM_PARENT);
         if (nfmod_str == NULL) {
