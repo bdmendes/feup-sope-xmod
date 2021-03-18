@@ -7,7 +7,7 @@
 #include "input_validation.h"
 
 /**
- * Checks whether the octal number received by input is valid in the xmod
+ * @brief Checks whether the octal number received by input is valid in the xmod
  * context.
  *
  * @param octal_number octal number to be tested
@@ -24,7 +24,7 @@ static bool is_invalid_octal_number(const char *octal_number) {
     return false;
 }
 /**
- * Checks whether the symbolic mode received by input is valid.
+ * @brief Checks whether the symbolic mode received by input is valid.
  *
  * @param symbolic_mode symbolic mode to be tested
  * @return true, if it is invalid; false, otherwise
