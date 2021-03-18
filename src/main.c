@@ -39,15 +39,20 @@ int main(int argc, char *argv[]) {
     if (setup_signal_handler() != 0) {
         fprintf(stderr, "setup signal handling");
     }
-    if (is_invalid_input(argv, argc) || setup_event_logging() != 0) {
+    if (is_invalid_input(argv, argc)) {
+        log_proc_exit_creat(EXIT_FAILURE);
         exit(EXIT_FAILURE);
     }
     process(argv);
+    log_proc_exit_creat(0);
+    close_log_file();
 }
 
 int process(char *argv[]) {
     XmodCommand cmd;
     parse(argv, &cmd);
+    increment_nftot();
+    set_sig_file_path(cmd.file_dir);
 
     FileInfo file_info;
     int success = 0;
@@ -61,21 +66,24 @@ int process(char *argv[]) {
     }
 
     bool changed = cmd.octal_mode != file_info.octal_mode;
-
     if (cmd.options.verbose || (cmd.options.changes && changed)) {
         print_verbose_message(cmd.file_dir, file_info.octal_mode,
                               cmd.octal_mode, changed, success);
     }
-
     if (success == 0 && cmd.options.recursive && file_info.type == DT_DIR) {
         if (traverse(argv, cmd.file_dir, cmd.file_idx) != 0) {
+            success = -1;
             print_verbose_message(cmd.file_dir, file_info.octal_mode,
-                                  cmd.octal_mode, changed, -1);
-            return -1;
+                                  cmd.octal_mode, changed, success);
         }
     }
 
-    return 0;
+    if (success == 0) {
+        increment_nfmod();
+        log_proc_file_mod_creat(cmd.file_dir, file_info.octal_mode,
+                                cmd.octal_mode);
+    }
+    return success;
 }
 
 int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
@@ -111,11 +119,8 @@ int traverse(char *argv[], const char dir_path[], unsigned file_idx) {
                     execvp(argv[0], argv);
                 } else if (id != -1) {
                     int status;
-                    if (wait(&status) == -1) {
-                        perror("could not wait for child process");
-                        closedir(dp);
-                        return -1;
-                    } else if (status != 0) {
+                    wait(&status);
+                    if (!WIFEXITED(status) && !WIFSIGNALED(status)) {
                         perror("child process exited abnormally");
                         closedir(dp);
                         return -1;

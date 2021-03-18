@@ -13,12 +13,17 @@ int setup_signal_handler(char curr_path[]);
 /**
  * @brief Increments by one the variable with the number of founded files
  */
-void set_nftot();
+void increment_nftot();
 
 /**
  * @brief Increments by one the variable with the number of modified files
  */
-void set_nfmod();
+void increment_nfmod();
+
+/**
+ * @brief Set file path
+ * @param path Path name
+ */
+void set_sig_file_path(char path[]);
 
 #endif // SRC_SIGNAL_SIG_H_
-

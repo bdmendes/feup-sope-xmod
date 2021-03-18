@@ -4,6 +4,13 @@
 #include <string.h>
 #include <sys/stat.h>
 
+/**
+ * @brief Get the symbolic string in the 'rwxrwxrwx' format given the octal
+ * permission mode
+ *
+ * @param mode permission mode (octal number)
+ * @param str buffer where the returned string is stored.
+ */
 static void get_symbolic_string(mode_t mode, char *str) {
     str[OWNER * 3 + READ] = mode & S_IRUSR ? 'r' : '-';
     str[OWNER * 3 + WRITE] = mode & S_IWUSR ? 'w' : '-';

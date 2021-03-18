@@ -1,4 +1,5 @@
-#include "./log.h"
+#include "log.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,8 +10,9 @@
 #include <unistd.h>
 
 static long double time_init;
-static int log_fd = -1;
+static int log_fd;
 static bool make_logs = true;
+static bool is_group_leader = true;
 
 /**
  * @brief Writes in the log file in the correct format
@@ -24,7 +26,7 @@ static int log_event(XMOD_EVENT event, const EventLog *inf);
  * @brief Get the number of milissecs since January 1, 1970
  * @return Number of milissecs since January 1, 1970
  */
-static long double get_milisecs() {
+static double get_milisecs() {
     struct timeval tim;
     gettimeofday(&tim, 0);
     double sec = tim.tv_sec;
@@ -77,24 +79,35 @@ static int log_event(XMOD_EVENT event, const EventLog *inf) {
             return -1;
     }
 
-    int flck = flock(log_fd, LOCK_EX);
-    if (flck != 0) {
-        perror("flock");
-        return -2;
+    // Lock file for writing
+    struct flock lock;
+    memset(&lock, 0, sizeof(lock));
+    lock.l_type = F_WRLCK;
+    if (fcntl(log_fd, F_SETLKW, &lock) == -1) {
+        if (errno != EINTR) {
+            perror("log file log acquire");
+            return -1;
+        }
     }
+
+    // Write assembled log to file
+    lseek(log_fd, 0, SEEK_END);
     write(log_fd, buf, strlen(buf));
 
-    flck = flock(log_fd, LOCK_UN);
-    if (flck != 0) {
-        perror("flock");
-        return -2;
+    // Release the lock for writing
+    lock.l_type = F_UNLCK;
+    if (fcntl(log_fd, F_SETLKW, &lock) == -1) {
+        if (errno != EINTR) {
+            perror("log file log release");
+            return -1;
+        }
     }
 
     return 0;
 }
 
 int setup_event_logging() {
-    bool is_group_leader = getpid() == getpgrp();
+    is_group_leader = getpid() == getpgrp();
 
     // Get log file path
     char *log_file_path = getenv(LOG_FILE_PATH_ENV);
@@ -103,27 +116,12 @@ int setup_event_logging() {
         return 0;
     }
 
-    // Open log file for writing
-    int fd;
-    fd = open(log_file_path,
-              O_WRONLY | (is_group_leader ? O_CREAT | O_TRUNC : O_APPEND),
-              S_IRWXU);
-    if (fd == -1) {
-        perror("log file open");
-        make_logs = false;
-        return -1;
-    }
-    log_fd = fd;
-
     // Get current instant as initial, or retrieve from group leader
     if (!is_group_leader) {
         char *saved_time_init = getenv(LOG_PARENT_INITIAL_TIME_ENV);
         if (saved_time_init == NULL) {
             fprintf(stderr, "%s environment variable not found\n",
                     LOG_PARENT_INITIAL_TIME_ENV);
-            if (close(fd) != 0) {
-                perror("log file close");
-            }
             make_logs = false;
             return -1;
         } else {
@@ -131,6 +129,15 @@ int setup_event_logging() {
         }
     } else {
         time_init = get_milisecs();
+    }
+
+    // Parent opens the file and truncates it once
+    log_fd = open(log_file_path,
+                  O_WRONLY | (is_group_leader ? O_CREAT | O_TRUNC : O_APPEND));
+    if (log_fd == -1) {
+        perror("log file open");
+        make_logs = false;
+        return -1;
     }
 
     make_logs = true;
@@ -183,3 +190,4 @@ int log_proc_file_mod_creat(char *file_name, mode_t old_perms,
     args.perms.new_perms = new_perms;
     return log_event(FILE_MODF, &args);
 }
+
