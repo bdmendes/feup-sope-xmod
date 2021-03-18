@@ -14,4 +14,3 @@ void increment_nftot();
 void increment_nfmod();
 
 #endif // SRC_SIGNAL_SIG_H_
-
