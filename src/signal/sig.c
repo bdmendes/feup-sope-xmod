@@ -59,24 +59,8 @@ int setup_signal_handler() {
         }
     }
 
-    bool is_group_leader = getpid() == getppid();
-    if (is_group_leader) {
-        nftot = 0;
-        nfmod = 0;
-    } else {
-        char *nftot_str = getenv(NFTOT_FROM_PARENT);
-        if (nftot_str == NULL) {
-            nftot = 0;
-        } else {
-            nftot = strtoul(nftot_str, NULL, 10);
-        }
-        char *nfmod_str = getenv(NFMOD_FROM_PARENT);
-        if (nfmod_str == NULL) {
-            nfmod = 0;
-        } else {
-            nfmod = strtoul(nfmod_str, NULL, 10);
-        }
-    }
+    nftot = 0;
+    nfmod = 0;
     return 0;
 }
 

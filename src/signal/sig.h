@@ -3,9 +3,6 @@
 
 #include <stdbool.h>
 
-#define NFTOT_FROM_PARENT "PAST_NFTOT"
-#define NFMOD_FROM_PARENT "PAST_NFMOD"
-
 int setup_signal_handler();
 
 void increment_nftot();
