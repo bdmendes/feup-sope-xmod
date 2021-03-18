@@ -15,6 +15,10 @@ static char file_dir[PATH_MAX];
 static unsigned int nftot = 0;
 static unsigned int nfmod = 0;
 
+/**
+ * @brief Signals handler. Responsible for user interface
+ * @param signo Signal
+ */
 void handler(int signo) {
     if (signo == SIGINT) {
         log_proc_sign_recev_creat("SIGINT");
