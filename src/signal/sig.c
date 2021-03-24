@@ -23,8 +23,9 @@ void handler(int signo) {
     if (signo == SIGINT) {
         log_proc_sign_recev_creat("SIGINT");
         bool is_group_leader = getpid() == getpgrp();
+        printf("\n%d ; %s ; %d ; %d \n", getpid(), file_dir, nftot, nfmod);
+        sleep(1);
         if (is_group_leader) {
-            printf("\n%d ; %s ; %d ; %d \n", getpid(), file_dir, nftot, nfmod);
             printf("Do you wish to continue? [Y/N]\n");
             char answer = getc(stdin);
             if (answer == 'N' || answer == 'n') {
